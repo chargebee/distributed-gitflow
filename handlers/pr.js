@@ -11,6 +11,7 @@ function toPr(context) {
     from: head.ref, 
     to: base.ref,
     id: id,
+    typeOfChange: head.ref.split('/')[0]
   }
 }
 
@@ -34,12 +35,12 @@ module.exports = { onPrOpen, onPrClose }
 async function test() {
   var fs = require('fs');
   
-  // var openPr = JSON.parse(fs.readFileSync('./../ops/dev/fakes/pr/open.json', 'utf8'));
-  // await onPrOpen({ payload: { pull_request: openPr } })
+  var openPr = JSON.parse(fs.readFileSync('./../ops/dev/fakes/pr/open.json', 'utf8'));
+  await onPrOpen({ payload: { pull_request: openPr } })
 
   // var squashAndMergedPr = JSON.parse(fs.readFileSync('./../ops/dev/fakes/pr/squash_and_merge.json', 'utf8'));
   // await onPrClose({ payload: { pull_request: squashAndMergedPr } })
   
-  var closedPr = JSON.parse(fs.readFileSync('./../ops/dev/fakes/pr/close.json', 'utf8'));
-  await onPrClose({ payload: { pull_request: closedPr } })
+  // var closedPr = JSON.parse(fs.readFileSync('./../ops/dev/fakes/pr/close.json', 'utf8'));
+  // await onPrClose({ payload: { pull_request: closedPr } })
 }

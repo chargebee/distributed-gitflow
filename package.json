@@ -5,13 +5,14 @@
   "main": "index.js",
   "scripts": {
     "build": "ncc build index.js -o dist",
-    "release" : "ncc build index.js -o dist && git add -A && git commit -m \"new release\" && git push"
+    "release": "ncc build index.js -o dist && git add -A && git commit -m \"new release\" && git push"
   },
   "keywords": [],
   "author": "tamizhvendan.sembiyan@chargebee.com",
   "license": "ISC",
   "dependencies": {
-    "@probot/adapter-github-actions": "^3.1.1"
+    "@probot/adapter-github-actions": "^3.1.1",
+    "@slack/web-api": "^6.7.0"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.33.3"
