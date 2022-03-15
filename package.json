@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "ncc build index.js -o dist"
+    "build": "ncc build index.js -o dist",
+    "release" : "ncc build index.js -o dist && git add -A && git commit -m \"new release\" && git push"
   },
   "keywords": [],
   "author": "tamizhvendan.sembiyan@chargebee.com",
