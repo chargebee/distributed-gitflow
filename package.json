@@ -4,8 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "ncc build index.js -o dist"
   },
   "keywords": [],
   "author": "tamizhvendan.sembiyan@chargebee.com",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@probot/adapter-github-actions": "^3.1.1"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.33.3"
+  }
 }

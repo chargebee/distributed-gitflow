@@ -1,0 +1,8 @@
+name: Chargebe App Github Workflow Action
+description: "Example Action built with Probot"
+branding:
+  icon: "gift"
+  color: orange
+runs:
+  using: "node12"
+  main: "dist/index.js"
