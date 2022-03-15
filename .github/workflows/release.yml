@@ -16,7 +16,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: rm .gitignore # dist/ folder is ignored by default
       - run: "git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git HEAD:refs/heads/v1"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
