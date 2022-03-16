@@ -1,5 +1,5 @@
 const notifications = require("./../notifications/pr");
-const github = require("./../app/github");
+const github = require("./../apps/github");
 
 function toPr(context) {
   let { base, body, user, html_url, title, number, head, id} = context.payload.pull_request
