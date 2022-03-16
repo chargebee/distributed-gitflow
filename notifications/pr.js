@@ -19,9 +19,6 @@ async function prClosed(pr, closedBy) {
 }
 
 async function prMerged(pr, mergedBy) {
-  if (isNotAgainstDevelopOrStaging(pr)) {
-    return
-  }
   await slack.notifyMergedPR(pr, mergedBy)
 }
 

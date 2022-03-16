@@ -16,15 +16,18 @@ function toPr(context) {
 }
 
 async function onPrOpen(context) {
+  context.log.info(toPr(context))
   await prOpened(toPr(context))
 }
 
 async function onPrClose(context) {
+  context.log.info(toPr(context))
   let {merged, merged_by, user} = context.payload.pull_request
   if (!merged) {
     await prClosed(toPr(context), user.login)
     return
   }
+  context
   await prMerged(toPr(context), merged_by.login)
 }
 
