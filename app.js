@@ -6,7 +6,7 @@ const github = require("./apps/github")
  */
 
 async function fetchingStagingBranchNames(octokit) {
-  let branchNames = await github.fetchProtectedBranchNames(context.octokit, process.env.REPO_OWNER, process.env.REPO_NAME)
+  let branchNames = await github.fetchProtectedBranchNames(octokit, process.env.REPO_OWNER, process.env.REPO_NAME)
   return branchNames.filter(branchName => branchName.startsWith("staging/"))
 }
 
