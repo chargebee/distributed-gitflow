@@ -17,6 +17,7 @@ const typeOfChangeEmoji = {
 }
 
 function channelName(pr) {
+  console.log(pr)
   return pr.to.replaceAll("/","-")
 }
 
