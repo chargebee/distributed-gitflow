@@ -16,6 +16,7 @@ function toPr(context) {
 }
 
 async function onPrOpen(context) {
+  console.log(JSON.stringify(context.payload.pull_request, null, 2))
   await prOpened(toPr(context))
 }
 
