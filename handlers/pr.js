@@ -114,6 +114,8 @@ async function raisePrToCorrespondingDevelopBranch(context, pr) {
 async function notifyIfPrIsNotMergable(context, pr, createPrPromise) {
   const createdPr = await createPrPromise;
   const prNumber = createdPr.data.number
+  console.log("PR Created")
+  console.log(JSON.stringify(createdPr.data, null, 2))
   const isMergeable = await github.isMergeable(context, prNumber)
   if (isMergeable === false) {
     await notifications.prHasConflicts(pr)
@@ -136,7 +138,8 @@ async function onPrClose(context) {
   }
   
   if (isPrToStagingBranch(pr)) {
-    promises.push(raisePrToCorrespondingDevelopBranch(context, pr))
+    let createPrPromise = raisePrToCorrespondingDevelopBranch(context, pr)
+    promises.push(notifyIfPrIsNotMergable(context, pr, createPrPromise))
     if (!isPrFromDevelopToStagingBranch(pr) && !isPrFromMasterBranch(pr)) {
       promises.push(github.deleteBranch(context, pr.from))
     }
