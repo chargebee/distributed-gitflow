@@ -36,7 +36,7 @@ async function onPrOpen(context) {
     github.setLabels(context, pr.number, [pr.to])
   ]
   if (isPrFromMasterToStagingBranch(pr) || isPrFromStagingToDevelopBranch(pr)) {
-    promises.push(github.mergePr(context, prNumber))
+    promises.push(github.mergePr(context, pr.number))
   }
   await Promise.all(promises)
 }
