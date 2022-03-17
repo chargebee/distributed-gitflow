@@ -1,8 +1,8 @@
 const { WebClient } = require('@slack/web-api');
 const slack = new WebClient(process.env.SLACK_BOT_TOKEN);
 
-async function sendBlocks(channel, blocks) {
-  await slack.chat.postMessage({channel : channel, blocks: blocks})
+async function sendMessage(channel, message, blocks) {
+  await slack.chat.postMessage({channel : channel, text: message, blocks: blocks})
 }
 
 function markdown(text) {
@@ -29,7 +29,7 @@ function divider() {
 }
 
 async function test() {
-  await sendBlocks("develop-subscriptions", [
+  await sendMessage("develop-subscriptions", [
     header(":sparkles: New PR :sparkles:"),
     markdown("An awesome PR title"), 
     emptyline(),
@@ -39,4 +39,4 @@ async function test() {
   ])
 }
 
-module.exports = {sendBlocks, header, markdown, emptyline}
+module.exports = {sendMessage, header, markdown, emptyline}

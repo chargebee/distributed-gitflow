@@ -30,7 +30,8 @@ function entry(label, value) {
 }
 
 async function notifyNewPR(pr) {
-  await slack.sendBlocks(channelName(pr), [
+  let textMessage = `${pr.authorHandle} has raised a PR, ${pr.title}(${pr.url}), from ${pr.from}`
+  await slack.sendMessage(channelName(pr), textMessage, [
     header(pr, "New PR"),
     slack.markdown(pr.title),
     slack.emptyline(),
@@ -42,7 +43,8 @@ async function notifyNewPR(pr) {
 }
 
 async function notifyMergedPR(pr, mergedBy) {
-  await slack.sendBlocks(channelName(pr), [
+  let textMessage = `${mergedBy} has merged a PR ${pr.title}(${pr.url})`
+  await slack.sendMessage(channelName(pr), textMessage, [
     slack.header(":checkered_flag: PR Merged :checkered_flag:"),
     slack.markdown(pr.title),
     slack.emptyline(),
@@ -53,7 +55,8 @@ async function notifyMergedPR(pr, mergedBy) {
 }
 
 async function notifyClosedPR(pr, closedBy) {
-  await slack.sendBlocks(channelName(pr), [
+  let textMessage = `${closedBy} has closed a PR ${pr.title}(${pr.url})`
+  await slack.sendMessage(channelName(pr), textMessage, [
     slack.header(":negative_squared_cross_mark: PR Closed :negative_squared_cross_mark:"),
     slack.markdown(pr.title),
     slack.emptyline(),

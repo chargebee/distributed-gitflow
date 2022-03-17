@@ -16,26 +16,25 @@ function toPr(context) {
   }
 }
 
-async function fetchingStagingBranchNames(octokit) {
-  let branchNames = await github.fetchProtectedBranchNames(octokit, process.env.REPO_OWNER, process.env.REPO_NAME)
+async function fetchingStagingBranchNames(context) {
+  let branchNames = await github.fetchProtectedBranchNames(context)
   return branchNames.filter(branchName => branchName.startsWith("staging/"))
 }
 
 async function onPrOpen(context) {
-  console.log(JSON.stringify(context.payload.pull_request, null, 2))
   await notifications.prOpened(toPr(context))
 }
 
-async function raisePrToAllStagingBranches(octokit) {
-  let stagingBranchNames = await fetchingStagingBranchNames(octokit)
+async function raisePrToAllStagingBranches(context) {
+  let stagingBranchNames = await fetchingStagingBranchNames(context)
   let promises = stagingBranchNames.map(async (branchName) => {
-    await github.createPr(octokit, process.env.REPO_OWNER, process.env.REPO_NAME, "master", branchName, "Syncing with latest Master")
+    await github.createPr(context, "master", branchName, "Syncing with latest Master")
   })
   return Promise.all(promises)
 }
 
-async function raisePrToCorrespondingDevelopBranch(octokit, pr) {
-  await github.createPr(octokit, process.env.REPO_OWNER, process.env.REPO_NAME, pr.to, pr.to.replace(/staging/g, "develop"), "Syncing with latest " + pr.to)
+async function raisePrToCorrespondingDevelopBranch(context, pr) {
+  await github.createPr(context, pr.to, pr.to.replace(/staging/g, "develop"), "Syncing with latest " + pr.to)
 }
 
 async function onPrClose(context) {
@@ -47,10 +46,10 @@ async function onPrClose(context) {
   }
   let promises = [notifications.prMerged(pr, merged_by.login)]
   if (pr.to === "master") {
-    promises.push(raisePrToAllStagingBranches(context.octokit))
+    promises.push(raisePrToAllStagingBranches(context))
   }
   if (pr.to.startsWith("staging/")) {
-    promises.push(raisePrToCorrespondingDevelopBranch(context.octokit, pr))
+    promises.push(raisePrToCorrespondingDevelopBranch(context, pr))
   }
   await Promise.all(promises)
 }
