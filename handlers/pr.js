@@ -65,11 +65,25 @@ function isPrFromOtherStagingBranchToDevelop(pr) {
   return false
 }
 
+function isPrFromOtherDevelopBranchToStaging(pr) {
+  if (isPrFromDevelopBranch(pr) && isPrToStagingBranch(pr)) {
+    return !isPrFromDevelopToStagingBranch(pr)
+  }
+  return false
+}
+
 async function onPrOpen(context) {
   let pr = toPr(context)
   
   if (isPrToDevelopBranch(pr)) {
     if (isPrFromMasterBranch(pr) || isPrFromDevelopBranch(pr) || isPrFromOtherStagingBranchToDevelop(pr)) {
+      core.setFailed(`PR from ${pr.from} to ${pr.to} is not supported`)
+      return
+    }
+  }
+
+  if (isPrToStagingBranch(pr)) {
+    if (isPrFromStagingBranch(pr) || isPrFromOtherDevelopBranchToStaging(pr)) {
       core.setFailed(`PR from ${pr.from} to ${pr.to} is not supported`)
       return
     }
