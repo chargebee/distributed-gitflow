@@ -44,7 +44,7 @@ async function onPrOpen(context) {
 async function raisePrToAllStagingBranches(context) {
   let stagingBranchNames = await fetchingStagingBranchNames(context)
   let promises = stagingBranchNames.map(async (branchName) => {
-    await github.createPr(context, "master", branchName, "Syncing with latest Master")
+    await github.createPr(context, "master", branchName, "Syncing with latest master")
   })
   return Promise.all(promises)
 }
