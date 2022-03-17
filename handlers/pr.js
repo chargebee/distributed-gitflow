@@ -116,7 +116,7 @@ async function notifyAndCloseIfPrIsNotMergable(context, pr, createPrFn) {
   const createdPr = await createPrFn(context, pr);
   const isMergeable = await github.isMergeable(context, createdPr.data.number)
   if (isMergeable === false) {
-    let mrConflictPr = toPr({context : {payload : {pull_request : createdPr.data}}})
+    let mrConflictPr = toPr({payload : {pull_request : createdPr.data}})
     await Promise.all([
       notifications.prHasConflicts(mrConflictPr),
       github.closePr(context, mrConflictPr.number)
