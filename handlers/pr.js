@@ -22,7 +22,11 @@ async function fetchingStagingBranchNames(context) {
 }
 
 async function onPrOpen(context) {
-  await notifications.prOpened(toPr(context))
+  let pr = toPr(context)
+  await Promise.all([
+    notifications.prOpened(pr),
+    github.setLabels(context, pr.number, [pr.to])
+  ])
 }
 
 async function raisePrToAllStagingBranches(context) {
