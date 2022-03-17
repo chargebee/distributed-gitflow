@@ -1,5 +1,6 @@
 const notifications = require("./../notifications/pr");
 const github = require("./../apps/github");
+const core = require('@actions/core');
 
 function toPr(context) {
   let { base, body, user, html_url, title, number, head, id} = context.payload.pull_request
@@ -69,7 +70,7 @@ async function onPrOpen(context) {
   
   if (isPrToDevelopBranch(pr)) {
     if (isPrFromMasterBranch(pr) || isPrFromDevelopBranch(pr) || isPrFromOtherStagingBranchToDevelop(pr)) {
-      console.error(`PR from ${pr.from} to ${pr.to} is not supported`)
+      core.setFailed(`PR from ${pr.from} to ${pr.to} is not supported`)
       return
     }
   }
