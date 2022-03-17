@@ -4,7 +4,8 @@ async function fetchProtectedBranchNames(context) {
 }
 
 async function createPr(context, from, to, title) {
-  await context.octokit.pulls.create(context.repo({title: title, head: from, base: to}))
+  let pr = await context.octokit.pulls.create(context.repo({title: title, head: from, base: to}))
+  return pr
 }
 
 async function setLabels(context, issueNumber, labels) {
