@@ -45,12 +45,35 @@ function isPrToStagingBranch(pr) {
   return pr.to.startsWith("staging/");
 }
 
+function isPrFromStagingBranch(pr) {
+  return pr.from.startsWith("staging/");
+}
+
 function isPrToDevelopBranch(pr) {
   return pr.to.startsWith("develop/");
 }
 
+function isPrFromDevelopBranch(pr) {
+  return pr.from.startsWith("develop/");
+}
+
+function isPrFromOtherStagingBranchToDevelop(pr) {
+  if (isPrFromStagingBranch(pr) && isPrToDevelopBranch(pr)) {
+    return !isPrFromStagingToDevelopBranch(pr)
+  }
+  return false
+}
+
 async function onPrOpen(context) {
   let pr = toPr(context)
+  
+  if (isPrToDevelopBranch(pr)) {
+    if (isPrFromMasterBranch(pr) || isPrFromDevelopBranch(pr) || isPrFromOtherStagingBranchToDevelop(pr)) {
+      console.error(`PR from ${pr.from} to ${pr.to} is not supported`)
+      return
+    }
+  }
+
   let promises = [
     notifications.prOpened(pr),
     github.setLabels(context, pr.number, [pr.to])
@@ -76,20 +99,25 @@ async function raisePrToCorrespondingDevelopBranch(context, pr) {
 async function onPrClose(context) {
   let {merged, merged_by, user} = context.payload.pull_request
   let pr = toPr(context)
+  
   if (!merged) {
     await notifications.prClosed(pr, user.login)
     return
   }
+  
   let promises = [notifications.prMerged(pr, merged_by.login)]
+  
   if (isPrToMasterBranch(pr)) {
     promises.push(raisePrToAllStagingBranches(context))
   }
+  
   if (isPrToStagingBranch(pr)) {
     promises.push(raisePrToCorrespondingDevelopBranch(context, pr))
     if (!isPrFromDevelopToStagingBranch(pr) && !isPrFromMasterBranch(pr)) {
       promises.push(github.deleteBranch(context, pr.from))
     }
   }
+
   if (isPrToDevelopBranch(pr) && !isPrFromStagingToDevelopBranch(pr)) {
     promises.push(github.deleteBranch(context, pr.from))
   }
