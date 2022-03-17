@@ -38,7 +38,7 @@ async function isMergeable (context, prNumber) {
   return null
 }
 
-function closePr(context, prNumber) {
+async function closePr(context, prNumber) {
   await context.octokit.pulls.update(context.repo({pull_number: prNumber, state : "closed"}))
 }
 
