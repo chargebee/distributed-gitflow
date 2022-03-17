@@ -11,4 +11,9 @@ async function setLabels(context, issueNumber, labels) {
   await context.octokit.issues.setLabels(context.repo({issue_number: issueNumber, labels: labels}))
 }
 
-module.exports = {fetchProtectedBranchNames, createPr, setLabels}
+
+async function mergePr(context, prNumber) {
+  await context.octokit.pulls.merge(context.repo({pull_number : prNumber}))
+}
+
+module.exports = {fetchProtectedBranchNames, createPr, setLabels, mergePr}

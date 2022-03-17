@@ -21,12 +21,24 @@ async function fetchingStagingBranchNames(context) {
   return branchNames.filter(branchName => branchName.startsWith("staging/"))
 }
 
+function isPrFromMasterToStagingBranch(pr) {
+  return pr.from === "master" && pr.to.startsWith("staging/")
+}
+
+function isPrFromStagingToDevelopBranch(pr) {
+  return pr.from.replace(/staging/g, "develop") === pr.to
+}
+
 async function onPrOpen(context) {
   let pr = toPr(context)
-  await Promise.all([
+  let promises = [
     notifications.prOpened(pr),
     github.setLabels(context, pr.number, [pr.to])
-  ])
+  ]
+  if (isPrFromMasterToStagingBranch(pr) || isPrFromStagingToDevelopBranch(pr)) {
+    promises.push(github.mergePr(context, prNumber))
+  }
+  await Promise.all(promises)
 }
 
 async function raisePrToAllStagingBranches(context) {
