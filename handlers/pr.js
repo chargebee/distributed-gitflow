@@ -29,6 +29,26 @@ function isPrFromStagingToDevelopBranch(pr) {
   return pr.from.replace(/staging/g, "develop") === pr.to
 }
 
+function isPrFromDevelopToStagingBranch(pr) {
+  return pr.from.replace(/develop/g, "staging") === pr.to
+}
+
+function isPrToMasterBranch(pr) {
+  return pr.to === "master";
+}
+
+function isPrFromMasterBranch(pr) {
+  return pr.from === "master";
+}
+
+function isPrToStagingBranch(pr) {
+  return pr.to.startsWith("staging/");
+}
+
+function isPrToDevelopBranch(pr) {
+  return pr.to.startsWith("develop/");
+}
+
 async function onPrOpen(context) {
   let pr = toPr(context)
   let promises = [
@@ -61,11 +81,17 @@ async function onPrClose(context) {
     return
   }
   let promises = [notifications.prMerged(pr, merged_by.login)]
-  if (pr.to === "master") {
+  if (isPrToMasterBranch(pr)) {
     promises.push(raisePrToAllStagingBranches(context))
   }
-  if (pr.to.startsWith("staging/")) {
+  if (isPrToStagingBranch(pr)) {
     promises.push(raisePrToCorrespondingDevelopBranch(context, pr))
+    if (!isPrFromDevelopToStagingBranch(pr) && !isPrFromMasterBranch(pr)) {
+      promises.push(github.deleteBranch(context, pr.from))
+    }
+  }
+  if (isPrToDevelopBranch(pr) && !isPrFromStagingToDevelopBranch(pr)) {
+    promises.push(github.deleteBranch(context, pr.from))
   }
   await Promise.all(promises)
 }

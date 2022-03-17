@@ -11,9 +11,12 @@ async function setLabels(context, issueNumber, labels) {
   await context.octokit.issues.setLabels(context.repo({issue_number: issueNumber, labels: labels}))
 }
 
-
 async function mergePr(context, prNumber) {
   await context.octokit.pulls.merge(context.repo({pull_number : prNumber}))
 }
 
-module.exports = {fetchProtectedBranchNames, createPr, setLabels, mergePr}
+async function deleteBranch(context, branchName) {
+  await context.octokit.git.deleteRef(context.repo({ref : branchName}))
+}
+
+module.exports = {fetchProtectedBranchNames, createPr, setLabels, mergePr, deleteBranch}
