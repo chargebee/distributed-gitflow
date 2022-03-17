@@ -108,7 +108,16 @@ async function raisePrToAllStagingBranches(context) {
 }
 
 async function raisePrToCorrespondingDevelopBranch(context, pr) {
-  await github.createPr(context, pr.to, pr.to.replace(/staging/g, "develop"), "Syncing with latest " + pr.to)
+  return github.createPr(context, pr.to, pr.to.replace(/staging/g, "develop"), "Syncing with latest " + pr.to)
+}
+
+async function notifyIfPrIsNotMergable(context, pr, createPrPromise) {
+  const createdPr = await createPrPromise;
+  const prNumber = createdPr.data.number
+  const isMergeable = await github.isMergeable(context, prNumber)
+  if (isMergeable === false) {
+    await notifications.prHasConflicts(pr)
+  }
 }
 
 async function onPrClose(context) {

@@ -22,4 +22,8 @@ async function prMerged(pr, mergedBy) {
   await slack.notifyMergedPR(pr, mergedBy)
 }
 
-module.exports = {prOpened, prClosed, prMerged}
+async function prHasConflicts(pr) {
+  await slack.notifyPrHasConflicts(pr)
+}
+
+module.exports = {prOpened, prClosed, prMerged, prHasConflicts}
