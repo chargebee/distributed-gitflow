@@ -16,7 +16,7 @@ async function mergePr(context, prNumber) {
 }
 
 async function deleteBranch(context, branchName) {
-  await context.octokit.git.deleteRef(context.repo({ref : branchName}))
+  await context.octokit.git.deleteRef(context.repo({ref : `heads/${branchName}`}))
 }
 
 module.exports = {fetchProtectedBranchNames, createPr, setLabels, mergePr, deleteBranch}
