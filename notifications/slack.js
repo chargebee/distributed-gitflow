@@ -69,11 +69,12 @@ async function notifyClosedPR(pr, closedBy) {
 async function notifyPrHasConflicts(pr) {
   let textMessage = `MERGE CONFLICT - ${pr.title}(${pr.url})`
   await slack.sendMessage(channelName(pr), textMessage, [
-    slack.header(":alert: PR Has MERGE CONFLICT :alert:"),
+    slack.header(":alert: MERGE CONFLICT :alert:"),
     slack.markdown(pr.title),
     slack.emptyline(),
     entry("URL", pr.url),
     slack.emptyline(),
+    slack.markdown("Team <!here>, fix it at the earliest.")
   ])
 }
 
