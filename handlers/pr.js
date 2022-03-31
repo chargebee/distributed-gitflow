@@ -98,7 +98,7 @@ async function onPrOpen(context) {
     const isMergeable = await github.isMergeable(context, pr.number)
     if (isMergeable === false) {
       await Promise.all([
-        notifications.prHasConflicts(pr.number),
+        notifications.prHasConflicts(pr),
         github.closePr(context, pr.number)
       ])
     }
