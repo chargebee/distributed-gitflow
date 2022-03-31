@@ -93,8 +93,18 @@ async function onPrOpen(context) {
     notifications.prOpened(pr),
     github.setLabels(context, pr.number, [pr.to])
   ]
+
   if (isPrFromMasterToStagingBranch(pr) || isPrFromStagingToDevelopBranch(pr)) {
-    promises.push(github.mergePr(context, pr.number))
+    const isMergeable = await github.isMergeable(context, pr.number)
+    if (isMergeable === false) {
+      await Promise.all([
+        notifications.prHasConflicts(pr.number),
+        github.closePr(context, pr.number)
+      ])
+    }
+    if (isMergeable === true) {
+      promises.push(github.mergePr(context, pr.number))
+    }
   }
   await Promise.all(promises)
 }
@@ -112,31 +122,16 @@ async function raisePrToCorrespondingDevelopBranch(context, pr) {
   return createdPr
 }
 
-async function createPrAndCloseItWithNotificationOnMergeConflict(context, createPrFn) {
-  const createdPr = await createPrFn();
-  const isMergeable = await github.isMergeable(context, createdPr.data.number)
-  if (isMergeable === false) {
-    let mrConflictPr = toPr({payload : {pull_request : createdPr.data}})
-    await Promise.all([
-      notifications.prHasConflicts(mrConflictPr),
-      github.closePr(context, mrConflictPr.number)
-    ])
-  }
-}
-
 async function onPrMerge(context, pr, mergedBy) {
   let promises = [notifications.prMerged(pr, mergedBy.login)]
   
   if (isPrToMasterBranch(pr)) {
     let createPrPromises = await raisePrToAllStagingBranches(context)
-    let createPrPromisesWithMergeConflictHandlingSupport = createPrPromises.map(async createPrPromise => {
-      await createPrAndCloseItWithNotificationOnMergeConflict(context, async () => await createPrPromise)
-    });
-    promises = promises.concat(createPrPromisesWithMergeConflictHandlingSupport)
+    promises = promises.concat(createPrPromises)
   }
   
   if (isPrToStagingBranch(pr)) {
-    promises.push(createPrAndCloseItWithNotificationOnMergeConflict(context, async () => raisePrToCorrespondingDevelopBranch(context, pr)))
+    promises.push(raisePrToCorrespondingDevelopBranch(context, pr))
     if (!isPrFromDevelopToStagingBranch(pr) && !isPrFromMasterBranch(pr)) {
       promises.push(github.deleteBranch(context, pr.from))
     }
