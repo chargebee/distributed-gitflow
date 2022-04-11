@@ -112,12 +112,20 @@ async function onPrOpen(context) {
 async function raisePrToAllStagingBranches(context) {
   let stagingBranchNames = await fetchingStagingBranchNames(context)
   return stagingBranchNames.map(async (branchName) => {
+    let existingPr = await github.fetchOpenPr(context, "master", branchName);
+    if (existingPr) {
+      return existingPr
+    }
     let createdPr = await github.createPr(context, "master", branchName, "Syncing with latest master")
     return createdPr
   })
 }
 
 async function raisePrToCorrespondingDevelopBranch(context, pr) {
+  let existingPr = await github.fetchOpenPr(context, pr.to, pr.to.replace(/staging/g, "develop"));
+  if (existingPr) {
+    return existingPr
+  }
   let createdPr = await github.createPr(context, pr.to, pr.to.replace(/staging/g, "develop"), "Syncing with latest " + pr.to)
   return createdPr
 }

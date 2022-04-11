@@ -8,6 +8,16 @@ async function createPr(context, from, to, title) {
   return pr
 }
 
+async function fetchOpenPr(context, from, to) {
+  let req = context.repo({title: title, base: to, state: "open"})
+  req.head = `${req.owner}:${from}`
+  let pr = await context.octokit.pulls.list(req)
+  if (pr.data.length == 1) {
+    return pr.data[0];
+  }
+  return null
+}
+
 async function setLabels(context, issueNumber, labels) {
   await context.octokit.issues.setLabels(context.repo({issue_number: issueNumber, labels: labels}))
 }
@@ -41,4 +51,4 @@ async function closePr(context, prNumber) {
   await context.octokit.pulls.update(context.repo({pull_number: prNumber, state : "closed"}))
 }
 
-module.exports = {fetchProtectedBranchNames, createPr, setLabels, mergePr, deleteBranch, isMergeable, closePr}
+module.exports = {fetchProtectedBranchNames, createPr, setLabels, mergePr, deleteBranch, isMergeable, closePr, fetchOpenPr}
