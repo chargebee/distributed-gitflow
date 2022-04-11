@@ -9,7 +9,7 @@ async function createPr(context, from, to, title) {
 }
 
 async function fetchOpenPr(context, from, to) {
-  let req = context.repo({title: title, base: to, state: "open"})
+  let req = context.repo({base: to, state: "open"})
   req.head = `${req.owner}:${from}`
   let pr = await context.octokit.pulls.list(req)
   if (pr.data.length == 1) {
