@@ -14,7 +14,7 @@ Every squad will have two long-living branches
 
   - Any bugfixes post merging the changes (either from master or develop/{squad-name}) will be raised as a hotfix PR to this branch.
 
-* `develop/{squad-name}` - A develop branch for the squad. All the PRs from the developers will be against the branch. Respective EMs/Leads and QAs control what goes into this branch. QAs will be starting their testing from this branch to sign the corresponding feature/fix/change deployment-ready and they make a call to promote the corresponding change to staging/{squad-name}. There will be a dedicated dev environment for each squad that always points to the HEAD version of this branch and the QA will be will testing on this. 
+* `develop/{squad-name}` - A develop branch for the squad. All the PRs from the developers will be against this branch. Respective EMs/Leads and QAs control what goes into this branch. QAs will be starting their testing from this branch to sign the corresponding feature/fix/change deployment-ready and they make a call to promote the  changes to the corresponding `staging/{squad-name}`. There will be a dedicated dev environment for each squad that always points to the HEAD version of this branch and the QA will be will testing on this. 
 
 and a short-lived developer owned branch
 
@@ -33,19 +33,23 @@ and a short-lived developer owned branch
 
 ## How it will work
 
-Let's assume that we have two squads - `mantis` and `viper`. 
+Let's assume that we have two squads - `mantis` and `viper` (Credits - [Kung Fu Panda](https://en.wikipedia.org/wiki/List_of_Kung_Fu_Panda_characters)). 
 
 When we get started with this approach, the branches would look like below
 
 ![](images/001.svg)
 
-As part of sprint plan, the `mantis` squad plans to deliver - features `F1` & `F2` and bug fix `b1`. Whereas the the squad `viper` plans to deliver a feature `F3` and the bug fixes `B2` and `B3`. 
+As part of sprint plan, the `mantis` squad plans to deliver - features `F1` & `F2` and bug fix `B1`. Whereas the the squad `viper` plans to deliver a feature `F3` and the bug fixes `B2` and `B3`. 
 
 ### Day 1: Mantis Squad
+
+The developers make the commit `c1`, `c2` and `c3` on the branches `feat/f1`, `feat/f2` and `fix/b1` respectively.
 
 ![](images/002.svg)
 
 ### Day 1: Viper Squad
+
+The developers make the commit `c4`, `c5` and `c6` on the branches `feat/f3`, `fix/b2` and `fix/b3` respectively.
 
 ![](images/003.svg)
 
@@ -127,3 +131,43 @@ Then, it got merged with the viper squad's develop branch
 ![](images/019.svg)
 
 ### Day N - The Same Flow Repeats...
+
+## Handling Hotfixes
+
+No matter how much vigilant we are, we can't avoid the fact that there will be bugs either after releasing (merging to `master`) or marking it release ready (merging to the `staging/{squad_name}`). 
+
+The fixes to these bugs are considered as hotfixes and it will follow the following pattern.
+
+### Fix to master
+
+A developer takes a new branch `fix/{jira_id}` from the `master` branch and make the commit `c9` to fix the bug identified.
+
+![](images/020.svg)
+
+Then he/she will be raising a PR to the `master` branch to get their change verified. Upon successful verification and QA, the PR will get merged and release to prod.
+
+![](images/021.svg)
+
+After merging with the `master` branch, A PR will be raised to all the `staging` branches and merged automatically if there is no conflicts. In case of conflicts, the respective squad will be notified. 
+
+![](images/022.svg)
+
+Finally, PRs will be raised to all the `develop` branches from the corresponding `staging` branch and merged automatically if there is no conflicts. In case of conflicts, the respective squad will be notified. 
+
+![](images/023.svg)
+
+### Fix to staging
+
+It's very similar to fix to `master` except the scope of the change and the PR flow are going to within the squad. 
+
+Let's assume there is a bug in `staging/viper`. A developer, creates a new branch `fix/{jira_id}` from the `staging/viper` and make the commit `c10` to fix that bug.
+
+![](images/024.svg)
+
+After successful verification and QA, a PR for the same will be raised from the `fix/{jira_id}` branch to the `staging/{squad_name}` branch and it will get merged
+
+![](images/025.svg)
+
+Finally, a PR will be raised to the `develop` branch, (`develop/viper` in this case) and merged automatically if there is no conflicts. In case of conflicts, the respective squad will be notified. 
+
+![](images/026.svg)
