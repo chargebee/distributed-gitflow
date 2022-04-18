@@ -10,11 +10,11 @@ The "Distributed Git Flow" is an experiment we wanted to carry out to fix the ch
 
 Every squad will have two long-living branches
 
-* `staging/{squad-name}` - A master branch for the squad. At any time, this branch should be *Deployment Ready*. Respective PMs/EMs/QAs control what goes into this branch. During the release, the Release team deploy the latest HEAD version of this branch. The will be a dedicated staging environment for each squad that always points to this HEAD version. 
+* `staging/{squad-name}` - A *protected* master branch for the squad. At any time, this branch should be *Deployment Ready*. Respective PMs/EMs/QAs control what goes into this branch. During the release, the Release team deploy the latest HEAD version of this branch. The will be a dedicated staging environment for each squad that always points to this HEAD version. 
 
   - Any bugfixes post merging the changes (either from master or develop/{squad-name}) will be raised as a hotfix PR to this branch.
 
-* `develop/{squad-name}` - A develop branch for the squad. All the PRs from the developers will be against this branch. Respective EMs/Leads and QAs control what goes into this branch. QAs will be starting their testing from this branch to sign the corresponding feature/fix/change deployment-ready and they make a call to promote the  changes to the corresponding `staging/{squad-name}`. There will be a dedicated dev environment for each squad that always points to the HEAD version of this branch and the QA will be will testing on this. 
+* `develop/{squad-name}` - A *protected* develop branch for the squad. All the PRs from the developers will be against this branch. Respective EMs/Leads and QAs control what goes into this branch. QAs will be starting their testing from this branch to sign the corresponding feature/fix/change deployment-ready and they make a call to promote the  changes to the corresponding `staging/{squad-name}`. There will be a dedicated dev environment for each squad that always points to the HEAD version of this branch and the QA will be will testing on this. 
 
 and a short-lived developer owned branch
 

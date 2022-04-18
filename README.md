@@ -16,10 +16,10 @@ To configure this action on a GitHub repository, you need two secrets
 
 * `SLACK_BOT_TOKEN` - A Slack Bot Token, that can be obtained by creating a new app in your slack workspace with the [chat:write](https://api.slack.com/scopes/chat:write) OAuth Permission. After creating the slack app, make sure you are creating the required squad's slack channels in your slack workspace and add this newly created slack app to those channels. For example, if you have two squads, `mantis` and `viper`, then you need the following channels
   - `master` - To notify the PR open/close changes on the `master` branch
-  - `staging/mantis` - To notify the PR open/close changes and merge conflicts on the `staging/mantis` branch
-  - `develop/mantis` - To notify the PR open/close changes and merge conflicts on the `develop/mantis` branch
-  - `staging/viper` - To notify the PR open/close changes and merge conflicts on the `staging/viper` branch
-  - `develop/viper` - To notify the PR open/close changes and merge conflicts on the `develop/viper` branch
+  - `staging-mantis` - To notify the PR open/close changes and merge conflicts on the `staging/mantis` branch
+  - `develop-mantis` - To notify the PR open/close changes and merge conflicts on the `develop/mantis` branch
+  - `staging-viper` - To notify the PR open/close changes and merge conflicts on the `staging/viper` branch
+  - `develop-viper` - To notify the PR open/close changes and merge conflicts on the `develop/viper` branch
 
 ```yaml
 # .github/workflows/pr.yml
@@ -33,6 +33,8 @@ on:
         - master  
         - 'staging/**'
         - 'develop/**'
+# env:
+#   SLACK_CHANNEL_PREFIX: test  <- an optional prefix for the slack channel names. Eg. test-staging-mantis, test-develop-viper
 jobs:
   prStatusChange:
     runs-on: ubuntu-latest
@@ -50,7 +52,7 @@ jobs:
 
 ## What it does
 
-After successful configuration of this GitHub action as mentioned above, it will take care of automating all the manual work needed in the keeping the branches in sync as mentioned in the [Distributed Git Flow](docs/distributed-gitflow.md) document.
+After successful configuration of this GitHub action as mentioned above, it will take care of automating all the manual work needed in keeping all the *protected branches* in sync as mentioned in the [Distributed Git Flow](docs/distributed-gitflow.md) document.
 
 ### Adding Labels To PR
 - Upon PR creation, it creates a `label` on the PR with the name of the `base` (`from`) branch. It will enable to filter the PRs based on the labels.  

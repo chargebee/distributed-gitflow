@@ -17,7 +17,11 @@ const typeOfChangeEmoji = {
 }
 
 function channelName(pr) {
-  return pr.to.replace(/\//g, "-")
+  let chnName = pr.to.replace(/\//g, "-")
+  if (process.env.SLACK_CHANNEL_PREFIX) {
+    return process.env.SLACK_CHANNEL_PREFIX + "-" + chnName;
+  }
+  return chnName;
 }
 
 function header(pr, text) {
