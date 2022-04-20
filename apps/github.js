@@ -40,8 +40,7 @@ async function isMergeable (context, prNumber) {
   while (i++ < maxRetries) {
     const pr = await context.octokit.pulls.get(context.repo({pull_number: prNumber}))
     if (typeof pr.data.mergeable === 'boolean' && pr.data.mergeable_state !== 'unknown') {
-      console.log(pr.data)
-      return pr.data.mergeable && (pr.data.mergeable_state === 'clean' || pr.data.mergeable_state === 'unstable')
+      return pr.data.mergeable && (pr.data.mergeable_state === 'clean' || pr.data.mergeable_state === 'unstable' || pr.data.mergeable_state === 'blocked')
     }
     await timeout(4500)
   }
