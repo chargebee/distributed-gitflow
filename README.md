@@ -44,7 +44,7 @@ jobs:
         run: |
           TOKEN="$(npx obtain-github-app-installation-access-token ci ${{ secrets.GH_APP_CREDENTIALS_TOKEN }})"
           echo "::set-output name=GH_APP_TOKEN::$TOKEN"
-      - uses: cb-tamizhvendansembiyan/distributed-gitflow@master
+      - uses: chargebee/distributed-gitflow@master
         env:
           GITHUB_TOKEN: ${{ steps.githubAppAuth.outputs.GH_APP_TOKEN }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
@@ -79,3 +79,10 @@ After successful configuration of this GitHub action as mentioned above, it will
 ### On PR create to develop/{squad_name}
 - Notifies on slack's `develop/{squad_name}` channel
 - If the PR is from the corresponding `staging` branch, it will be automatically merged. In case of merge conflicts, the PR will be closed and notifies about the merge conflict on the `develop/{squad_name}` channel
+
+
+## How to make changes and deploy
+1. create a new branch
+2. make the required changes and build the package using the `npm run release` command.
+3. raise a PR to the `master` branch
+4. After the PR merge, the updated GitHub action can be a accessed from `chargebee/distributed-gitflow@master` 

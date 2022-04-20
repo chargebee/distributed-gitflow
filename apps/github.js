@@ -1,5 +1,5 @@
 async function fetchProtectedBranchNames(context) {
-  let branches = await context.octokit.repos.listBranches(context.repo({protected : false}))
+  let branches = await context.octokit.repos.listBranches(context.repo({protected : true}))
   return branches.data.map(branch => branch.name)
 }
 
