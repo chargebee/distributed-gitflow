@@ -72,7 +72,7 @@ function isPrFromOtherDevelopBranchToStaging(pr) {
   return false
 }
 
-function notifySlackAboutMergeConflictAndClosePr(pr) {
+function notifySlackAboutMergeConflictAndClosePr(context, pr) {
   return Promise.all([
     notifications.prHasConflicts(pr),
     github.closePr(context, pr.number)
@@ -127,7 +127,7 @@ async function raisePrToAllStagingBranches(context, onMergeConflict) {
     let newPr = toPr({payload: {pull_request: createdPr.data}})
     let isMergeable = await github.isMergeable(context, newPr.number)
     if (isMergeable === false) {
-      await onMergeConflict(newPr)
+      await onMergeConflict(context, newPr)
     }
     return createdPr
   })
@@ -142,7 +142,7 @@ async function raisePrToCorrespondingDevelopBranch(context, pr, onMergeConflict)
   let newPr = toPr({payload: {pull_request: createdPr.data}})
   let isMergeable = await github.isMergeable(context, newPr.number)
   if (isMergeable === false) {
-    await onMergeConflict(newPr)
+    await onMergeConflict(context, newPr)
   }
   return createdPr
 }
