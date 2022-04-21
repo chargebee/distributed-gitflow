@@ -72,6 +72,13 @@ function isPrFromOtherDevelopBranchToStaging(pr) {
   return false
 }
 
+function notifySlackAboutMergeConflictAndClosePr(pr) {
+  return Promise.all([
+    notifications.prHasConflicts(pr),
+    github.closePr(context, pr.number)
+  ])
+}
+
 async function onPrOpen(context) {
   let pr = toPr(context)
   
@@ -109,7 +116,7 @@ async function onPrOpen(context) {
   await Promise.all(promises)
 }
 
-async function raisePrToAllStagingBranches(context) {
+async function raisePrToAllStagingBranches(context, onMergeConflict) {
   let stagingBranchNames = await fetchingStagingBranchNames(context)
   return stagingBranchNames.map(async (branchName) => {
     let existingPr = await github.fetchOpenPr(context, "master", branchName);
@@ -117,16 +124,26 @@ async function raisePrToAllStagingBranches(context) {
       return existingPr
     }
     let createdPr = await github.createPr(context, "master", branchName, "Syncing with latest master")
+    let newPr = toPr({payload: {pull_request: createdPr.data}})
+    let isMergeable = await github.isMergeable(context, newPr.number)
+    if (isMergeable === false) {
+      await onMergeConflict(newPr)
+    }
     return createdPr
   })
 }
 
-async function raisePrToCorrespondingDevelopBranch(context, pr) {
+async function raisePrToCorrespondingDevelopBranch(context, pr, onMergeConflict) {
   let existingPr = await github.fetchOpenPr(context, pr.to, pr.to.replace(/staging/g, "develop"));
   if (existingPr) {
     return existingPr
   }
   let createdPr = await github.createPr(context, pr.to, pr.to.replace(/staging/g, "develop"), "Syncing with latest " + pr.to)
+  let newPr = toPr({payload: {pull_request: createdPr.data}})
+  let isMergeable = await github.isMergeable(context, newPr.number)
+  if (isMergeable === false) {
+    await onMergeConflict(newPr)
+  }
   return createdPr
 }
 
@@ -134,12 +151,12 @@ async function onPrMerge(context, pr, mergedBy) {
   let promises = [notifications.prMerged(pr, mergedBy.login)]
   
   if (isPrToMasterBranch(pr)) {
-    let createPrPromises = await raisePrToAllStagingBranches(context)
+    let createPrPromises = await raisePrToAllStagingBranches(context, notifySlackAboutMergeConflictAndClosePr)
     promises = promises.concat(createPrPromises)
   }
   
   if (isPrToStagingBranch(pr)) {
-    promises.push(raisePrToCorrespondingDevelopBranch(context, pr))
+    promises.push(raisePrToCorrespondingDevelopBranch(context, pr, notifySlackAboutMergeConflictAndClosePr))
     if (!isPrFromDevelopToStagingBranch(pr) && !isPrFromMasterBranch(pr)) {
       promises.push(github.deleteBranch(context, pr.from))
     }
