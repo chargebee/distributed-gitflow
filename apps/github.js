@@ -35,7 +35,7 @@ function timeout(ms) {
 }
 
 async function isMergeable (context, prNumber) {
-  const maxRetries = 3
+  const maxRetries = 5
   let i = 0
   while (i++ < maxRetries) {
     const pr = await context.octokit.pulls.get(context.repo({pull_number: prNumber}))
