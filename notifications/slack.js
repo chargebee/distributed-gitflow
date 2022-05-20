@@ -16,6 +16,10 @@ const typeOfChangeEmoji = {
   "master" : ":bookmark:",
 }
 
+function isAuthoredByBot(authorHandle) {
+  return authorHandle === "distributed-gitflow-app[bot]"
+}
+
 function channelName(pr) {
   let chnName = pr.to.replace(/\//g, "-")
   if (process.env.SLACK_CHANNEL_PREFIX) {
@@ -34,13 +38,15 @@ function entry(label, value) {
 }
 
 async function notifyNewPR(pr) {
+  if (isAuthoredByBot(pr.authorHandle)) {
+    return;
+  }
   let textMessage = `${pr.authorHandle} has raised a PR, ${pr.title}(${pr.url}), from ${pr.from}`
   await slack.sendMessage(channelName(pr), textMessage, [
     header(pr, "New PR"),
     slack.markdown(pr.title),
     slack.emptyline(),
-    entry("Created By", pr.authorHandle),
-    entry("From", pr.from),
+    entry("From", `${pr.authorHandle} (${pr.from})`),
     entry("URL", pr.url),
     slack.emptyline(),
   ])
@@ -48,6 +54,12 @@ async function notifyNewPR(pr) {
 
 async function notifyMergedPR(pr, mergedBy) {
   let textMessage = `${mergedBy} has merged a PR ${pr.title}(${pr.url})`
+  if (isAuthoredByBot(mergedBy)) {
+    await slack.sendMessage(channelName(pr), textMessage, [
+      slack.markdown(pr.title + " - completed")
+    ]);
+    return
+  }
   await slack.sendMessage(channelName(pr), textMessage, [
     slack.header(":checkered_flag: PR Merged :checkered_flag:"),
     slack.markdown(pr.title),
@@ -59,6 +71,9 @@ async function notifyMergedPR(pr, mergedBy) {
 }
 
 async function notifyClosedPR(pr, closedBy) {
+  if (isAuthoredByBot(closedBy)) {
+    return;
+  }
   let textMessage = `${closedBy} has closed a PR ${pr.title}(${pr.url})`
   await slack.sendMessage(channelName(pr), textMessage, [
     slack.header(":negative_squared_cross_mark: PR Closed :negative_squared_cross_mark:"),
