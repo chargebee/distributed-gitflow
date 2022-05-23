@@ -79,9 +79,17 @@ function notifySlackAboutMergeConflictAndClosePr(context, pr) {
   ])
 }
 
+function timeout(ms) {
+  new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForSomeTimeToMakeSureThePRinTheRightStatus() {
+  return timeout(5000);
+}
+
 async function onPrOpen(context) {
   let pr = toPr(context)
-  
+
   if (isPrToDevelopBranch(pr)) {
     if (isPrFromMasterBranch(pr) || isPrFromDevelopBranch(pr) || isPrFromOtherStagingBranchToDevelop(pr)) {
       core.setFailed(`PR from ${pr.from} to ${pr.to} is not supported`)
@@ -100,6 +108,7 @@ async function onPrOpen(context) {
     notifications.prOpened(pr),
     github.setLabels(context, pr.number, [pr.to])
   ]
+  await waitForSomeTimeToMakeSureThePRinTheRightStatus();
 
   if (isPrFromMasterToStagingBranch(pr) || isPrFromStagingToDevelopBranch(pr)) {
     const isMergeable = await github.isMergeable(context, pr.number)
