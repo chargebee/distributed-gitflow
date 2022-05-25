@@ -22,8 +22,23 @@ async function setLabels(context, issueNumber, labels) {
   await context.octokit.issues.setLabels(context.repo({issue_number: issueNumber, labels: labels}))
 }
 
-async function mergePr(context, prNumber) {
-  await context.octokit.pulls.merge(context.repo({pull_number : prNumber}))
+async function mergePr(context, pr, onMergeFailure) {
+  const maxRetries = 5
+  let i = 0
+  let isMerged = false
+  while (i++ < maxRetries) {
+    try {
+      await context.octokit.pulls.merge(context.repo({pull_number : pr.number}))
+      isMerged = true
+      break;
+    } catch (e) {
+      console.log(`Unable to merge the PR ${pr.number} due to ${e.message}. Retrying...`);
+      await timeout(4500);
+    }
+  }
+  if (!isMerged) {
+    await onMergeFailure(context, pr);
+  }
 }
 
 async function deleteBranch(context, branchName) {
@@ -40,9 +55,13 @@ async function isMergeable (context, prNumber) {
   while (i++ < maxRetries) {
     const pr = await context.octokit.pulls.get(context.repo({pull_number: prNumber}))
     if (typeof pr.data.mergeable === 'boolean' && pr.data.mergeable_state !== 'unknown') {
-      console.log(`PR Details of ${prNumber}`)
-      console.log(JSON.stringify(pr.data, null, 2));
-      return pr.data.mergeable && (pr.data.mergeable_state === 'clean' || pr.data.mergeable_state === 'unstable' || pr.data.mergeable_state === 'blocked')
+      // console.log(`PR Details of ${prNumber}`)
+      // console.log(JSON.stringify(pr.data, null, 2));
+      return pr.data.mergeable && 
+              (pr.data.mergeable_state === 'clean' || 
+                pr.data.mergeable_state === 'unstable' || 
+                pr.data.mergeable_state === 'behind' || 
+                pr.data.mergeable_state === 'blocked')
     }
     await timeout(4500)
   }
