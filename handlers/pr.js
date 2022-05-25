@@ -79,12 +79,15 @@ function notifySlackAboutMergeConflictAndClosePr(context, pr) {
   ])
 }
 
-function timeout(ms) {
-  new Promise((resolve) => setTimeout(resolve, ms));
+function notifySlackAboutMergeFailureAndClosePr(context, pr) {
+  return Promise.all([
+    notifications.prMergeFailed(pr),
+    github.closePr(context, pr.number)
+  ])
 }
 
-async function waitForSomeTimeToMakeSureThePRinTheRightStatus() {
-  return timeout(5000);
+function timeout(ms) {
+  new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function onPrOpen(context) {
@@ -108,7 +111,6 @@ async function onPrOpen(context) {
     notifications.prOpened(pr),
     github.setLabels(context, pr.number, [pr.to])
   ]
-  await waitForSomeTimeToMakeSureThePRinTheRightStatus();
 
   if (isPrFromMasterToStagingBranch(pr) || isPrFromStagingToDevelopBranch(pr)) {
     const isMergeable = await github.isMergeable(context, pr.number)
@@ -119,7 +121,7 @@ async function onPrOpen(context) {
       ])
     }
     if (isMergeable === true) {
-      promises.push(github.mergePr(context, pr.number))
+      promises.push(github.mergePr(context, pr, notifySlackAboutMergeFailureAndClosePr))
     }
   }
   await Promise.all(promises)

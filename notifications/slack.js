@@ -97,4 +97,15 @@ async function notifyPrHasConflicts(pr) {
   ])
 }
 
-module.exports = {notifyNewPR, notifyMergedPR, notifyClosedPR, notifyPrHasConflicts}
+async function notifyPrMergeFailed(pr) {
+  let textMessage = `MERGE FAILED - ${pr.title}(${pr.url})`
+  await slack.sendMessage(channelName(pr), textMessage, [
+    slack.header(":alert: MERGE FAILED :alert:"),
+    slack.markdown(pr.title),
+    slack.emptyline(),
+    entry("URL", pr.url),
+    slack.emptyline(),
+    slack.markdown("Team <!here>, fix it by merging it manually.")
+  ])
+}
+module.exports = {notifyNewPR, notifyMergedPR, notifyClosedPR, notifyPrHasConflicts, notifyPrMergeFailed}
