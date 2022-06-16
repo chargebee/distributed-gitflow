@@ -145,9 +145,9 @@ async function raisePrToAllStagingBranches(context, onMergeConflict) {
 }
 
 async function raisePrToCorrespondingDevelopBranch(context, pr, onMergeConflict) {
-  let existingPr = await github.fetchOpenPr(context, pr.to, pr.to.replace(/staging/g, "develop"));
-  if (existingPr) {
-    return existingPr
+  let existingOpenPr = await github.fetchOpenPr(context, pr.to, pr.to.replace(/staging/g, "develop"));
+  if (existingOpenPr) {
+    await github.closePr(context, existingOpenPr.number)
   }
   let createdPr = await github.createPr(context, pr.to, pr.to.replace(/staging/g, "develop"), "Syncing with latest " + pr.to)
   let newPr = toPr({payload: {pull_request: createdPr.data}})
