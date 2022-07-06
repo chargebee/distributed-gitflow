@@ -79,10 +79,9 @@ function notifySlackAboutMergeConflictAndClosePr(context, pr) {
   ])
 }
 
-function notifySlackAboutMergeFailureAndClosePr(context, pr) {
+function notifySlackAboutMergeFailure(context, pr) {
   return Promise.all([
-    notifications.prMergeFailed(pr),
-    github.closePr(context, pr.number)
+    notifications.prMergeFailed(pr)
   ])
 }
 
@@ -121,7 +120,10 @@ async function onPrOpen(context) {
       ])
     }
     if (isMergeable === true) {
-      promises.push(github.mergePr(context, pr, notifySlackAboutMergeFailureAndClosePr))
+      promises.push(github.mergePr(context, pr, notifySlackAboutMergeFailure))
+    }
+    if (isMergeable === null) {
+      promises.push([notifications.prMergeFailed(pr)])
     }
   }
   await Promise.all(promises)
