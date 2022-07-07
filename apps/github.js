@@ -54,12 +54,13 @@ async function isMergeable (context, prNumber) {
   let i = 0
   while (i++ < maxRetries) {
     const pr = await context.octokit.pulls.get(context.repo({pull_number: prNumber}))
-    if (typeof pr.data.mergeable === 'boolean' && pr.data.mergeable_state !== 'unknown' && pr.data.mergeable_state !== 'unstable') {
-      return pr.data.mergeable && 
-              (pr.data.mergeable_state === 'clean' || pr.data.mergeable_state === 'behind')
-    }
     console.log(`PR Details of ${prNumber}`)
     console.log(JSON.stringify(pr.data, null, 2));
+    // Merge Statuses: https://docs.github.com/en/graphql/reference/enums#mergestatestatus
+    if (typeof pr.data.mergeable === 'boolean' && pr.data.mergeable_state !== 'unknown' && pr.data.mergeable_state !== 'blocked') {
+      return pr.data.mergeable && 
+              (pr.data.mergeable_state === 'clean' || pr.data.mergeable_state === 'behind' || pr.data.mergeable_state !== 'unstable')
+    }
     await timeout(60 * (i + 1) * 1000)
   }
   return null
