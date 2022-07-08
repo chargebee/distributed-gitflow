@@ -59,7 +59,7 @@ async function isMergeable (context, prNumber) {
     // Merge Statuses: https://docs.github.com/en/graphql/reference/enums#mergestatestatus
     if (typeof pr.data.mergeable === 'boolean' && pr.data.mergeable_state !== 'unknown' && pr.data.mergeable_state !== 'blocked') {
       return pr.data.mergeable && 
-              (pr.data.mergeable_state === 'clean' || pr.data.mergeable_state === 'behind' || pr.data.mergeable_state !== 'unstable')
+              (pr.data.mergeable_state === 'clean' || pr.data.mergeable_state === 'behind' || pr.data.mergeable_state === 'unstable')
     }
     await timeout(60 * (i + 1) * 1000)
   }
