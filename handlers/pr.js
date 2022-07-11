@@ -91,7 +91,7 @@ function timeout(ms) {
 
 async function onPrOpen(context) {
   let pr = toPr(context)
-
+  console.log(`On PR Open #${pr.number}`)
   if (isPrToDevelopBranch(pr)) {
     if (isPrFromMasterBranch(pr) || isPrFromDevelopBranch(pr) || isPrFromOtherStagingBranchToDevelop(pr)) {
       core.setFailed(`PR from ${pr.from} to ${pr.to} is not supported`)
@@ -161,6 +161,7 @@ async function raisePrToCorrespondingDevelopBranch(context, pr, onMergeConflict)
 }
 
 async function onPrMerge(context, pr, mergedBy) {
+  console.log(`On PR Merge #${pr.number}`)
   let promises = [notifications.prMerged(pr, mergedBy.login)]
   
   if (isPrToMasterBranch(pr)) {
@@ -185,6 +186,7 @@ async function onPrMerge(context, pr, mergedBy) {
 }
 
 async function onPrClose(context) {
+  console.log(`On PR Close #${pr.number}`)
   let {merged, merged_by, user} = context.payload.pull_request
   let pr = toPr(context)
   if (!merged) {
