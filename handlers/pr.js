@@ -100,7 +100,7 @@ async function onPrOpen(context) {
   }
 
   if (isPrToStagingBranch(pr)) {
-    if (isPrFromStagingBranch(pr) || isPrFromOtherDevelopBranchToStaging(pr)) {
+    if (isPrFromOtherDevelopBranchToStaging(pr)) {
       core.setFailed(`PR from ${pr.from} to ${pr.to} is not supported`)
       return
     }
