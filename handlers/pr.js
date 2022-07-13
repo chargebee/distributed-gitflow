@@ -186,9 +186,9 @@ async function onPrMerge(context, pr, mergedBy) {
 }
 
 async function onPrClose(context) {
-  console.log(`On PR Close #${pr.number}`)
   let {merged, merged_by, user} = context.payload.pull_request
   let pr = toPr(context)
+  console.log(`On PR Close #${pr.number}`)
   if (!merged) {
     await notifications.prClosed(pr, user.login)
     return
