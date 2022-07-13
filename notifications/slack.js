@@ -98,9 +98,9 @@ async function notifyPrHasConflicts(pr) {
 }
 
 async function notifyPrMergeFailed(pr) {
-  let textMessage = `MERGE FAILED - ${pr.title}(${pr.url})`
+  let textMessage = `AUTO SYNC FAILED - ${pr.title}(${pr.url})`
   await slack.sendMessage(channelName(pr), textMessage, [
-    slack.header(":alert: MERGE FAILED :alert:"),
+    slack.header(":alert: AUTO SYNC FAILED :alert:"),
     slack.markdown(pr.title),
     slack.emptyline(),
     entry("URL", pr.url),
