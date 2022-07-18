@@ -93,7 +93,7 @@ async function notifyPrHasConflicts(pr) {
     slack.emptyline(),
     entry("URL", pr.url),
     slack.emptyline(),
-    slack.markdown("Team <!here>, fix it at the earliest.")
+    slack.markdown("Team <!here>, fix it at the earliest by following [these instructions](https://mychargebee.atlassian.net/wiki/spaces/~936350833/pages/2803859591/Distributed+GitFlow+-+Day-to-Day+Workflow+Tips#Resolving-Merge-Conflict).")
   ])
 }
 
