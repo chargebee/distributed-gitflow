@@ -33,8 +33,8 @@ async function mergePr(context, pr, onMergeFailure) {
       break;
     } catch (e) {
       console.log(`Unable to merge the PR ${pr.number} due to ${e.message}. Retrying...`);
-      console.log(`sleeping for ${(i + 1)} minute(s)`)
-      await timeout(60 * (i + 1) * 1000);
+      console.log(`sleeping for ${(i + 2)} minute(s)`)
+      await timeout(60 * (i + 2) * 1000);
     }
   }
   if (!isMerged) {
@@ -62,8 +62,8 @@ async function isMergeable (context, prNumber) {
       return pr.data.mergeable && 
               (pr.data.mergeable_state === 'clean' || pr.data.mergeable_state === 'behind' || pr.data.mergeable_state === 'unstable' || pr.data.mergeable_state === 'blocked')
     }
-    console.log(`sleeping for ${(i + 1)} minute(s)`)
-    await timeout(60 * (i + 1) * 1000)
+    console.log(`sleeping for a minute`)
+    await timeout(60 * 1000)
   }
   return null
 }
