@@ -131,6 +131,7 @@ async function onPrOpen(context) {
 
 async function raisePrToAllStagingBranches(context, onMergeConflict) {
   let stagingBranchNames = await fetchingStagingBranchNames(context)
+  console.log(`Raising PR to all staging branches - ${stagingBranchNames.join(", ")}`)
   return stagingBranchNames.map(async (branchName) => {
     let existingPr = await github.fetchOpenPr(context, "master", branchName);
     if (existingPr) {
