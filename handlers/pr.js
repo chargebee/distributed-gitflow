@@ -133,16 +133,9 @@ async function raisePrToAllStagingBranches(context, onMergeConflict) {
   let stagingBranchNames = await fetchingStagingBranchNames(context)
   console.log(`Raising PR to all staging branches - ${stagingBranchNames.join(", ")}`)
   return stagingBranchNames.map(async (branchName) => {
-    let existingPr = await github.fetchOpenPr(context, "master", branchName);
-    if (existingPr) {
-      let oldPr = toPr({payload: {pull_request: existingPr.data}})
-      let isMergeable = await github.isMergeable(context, oldPr.number)
-      if (isMergeable === true) {
-        let mergedPr = await github.mergePr(context, pr, notifySlackAboutMergeFailure)
-        return mergedPr
-      }
-      await onMergeConflict(context, oldPr)
-      return existingPr
+    let existingOpenPr = await github.fetchOpenPr(context, "master", branchName);
+    if (existingOpenPr) {
+      await github.closePr(context, existingOpenPr.number)
     }
     let createdPr = await github.createPr(context, "master", branchName, "Syncing with latest master")
     let newPr = toPr({payload: {pull_request: createdPr.data}})
