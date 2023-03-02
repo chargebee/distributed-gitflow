@@ -32,9 +32,11 @@ async function mergePr(context, pr, onMergeFailure) {
       isMerged = true
       break;
     } catch (e) {
-      console.log(`Unable to merge the PR ${pr.number} due to ${e.message}. Retrying...`);
-      console.log(`sleeping for ${(i + 2)} minute(s)`)
-      await timeout(60 * (i + 2) * 1000);
+      console.log(`Unable to merge the PR ${pr.number} due to ${e.message}.`);
+      if (i < maxRetries) {
+        console.log(` Retrying... sleeping for ${(i + 2)} minute(s)`)
+        await timeout(60 * (i + 1) * 1000);
+      }
     }
   }
   if (!isMerged) {
@@ -47,7 +49,7 @@ async function deleteBranch(context, branchName) {
 }
 
 function timeout(ms) {
-  new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 async function isMergeable (context, prNumber) {
@@ -59,7 +61,7 @@ async function isMergeable (context, prNumber) {
     console.log(JSON.stringify(pr.data, null, 2));
     // Merge Statuses: https://docs.github.com/en/graphql/reference/enums#mergestatestatus
     if (typeof pr.data.mergeable === 'boolean' && pr.data.mergeable_state !== 'unknown') {
-      return pr.data.mergeable && 
+      return pr.data.mergeable &&
               (pr.data.mergeable_state === 'clean' || pr.data.mergeable_state === 'behind' || pr.data.mergeable_state === 'unstable' || pr.data.mergeable_state === 'blocked')
     }
     console.log(`sleeping for a minute`)
