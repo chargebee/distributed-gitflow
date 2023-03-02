@@ -27,16 +27,16 @@ async function mergePr(context, pr, onMergeFailure) {
   let i = 0
   let isMerged = false
   while (i++ < maxRetries) {
-    if (i !== 1) {
-      console.log(` Retrying... sleeping for ${(i + 2)} minute(s)`)
-      await timeout(60 * (i + 1) * 1000);
-    }
     try {
       await context.octokit.pulls.merge(context.repo({pull_number : pr.number, commit_message : "\r\n\r\n skip-checks: true"}))
       isMerged = true
       break;
     } catch (e) {
       console.log(`Unable to merge the PR ${pr.number} due to ${e.message}.`);
+      if (i < maxRetries) {
+        console.log(` Retrying... sleeping for ${(i + 2)} minute(s)`)
+        await timeout(60 * (i + 1) * 1000);
+      }
     }
   }
   if (!isMerged) {
