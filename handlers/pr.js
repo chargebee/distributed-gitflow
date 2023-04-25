@@ -7,10 +7,10 @@ function toPr(context) {
   return {
     description: body,
     authorHandle: user.login,
-    title: title, 
+    title: title,
     url: html_url,
-    number: number, 
-    from: head.ref, 
+    number: number,
+    from: head.ref,
     to: base.ref,
     id: id,
     typeOfChange: head.ref.split('/')[0]
@@ -39,7 +39,7 @@ function isPrToMasterBranch(pr) {
 }
 
 function isPrFromMasterBranch(pr) {
-  return pr.from === "master";
+  return pr.from === "gov-master";
 }
 
 function isPrToStagingBranch(pr) {
@@ -164,12 +164,12 @@ async function raisePrToCorrespondingDevelopBranch(context, pr, onMergeConflict)
 async function onPrMerge(context, pr, mergedBy) {
   console.log(`On PR Merge #${pr.number}`)
   let promises = [notifications.prMerged(pr, mergedBy.login)]
-  
+
   if (isPrToMasterBranch(pr)) {
     let createPrPromises = await raisePrToAllStagingBranches(context, notifySlackAboutMergeConflictAndClosePr)
     promises = promises.concat(createPrPromises)
   }
-  
+
   if (isPrToStagingBranch(pr)) {
     if (!isPrFromDevelopToStagingBranch(pr)) {
       promises.push(raisePrToCorrespondingDevelopBranch(context, pr, notifySlackAboutMergeConflictAndClosePr))
@@ -182,7 +182,7 @@ async function onPrMerge(context, pr, mergedBy) {
   if (isPrToDevelopBranch(pr) && !isPrFromStagingToDevelopBranch(pr)) {
     promises.push(github.deleteBranch(context, pr.from))
   }
-  
+
   await Promise.all(promises)
 }
 
@@ -199,17 +199,17 @@ async function onPrClose(context) {
 
 module.exports = { onPrOpen, onPrClose }
 
-// .load pr.js 
+// .load pr.js
 // await test()
 async function test() {
   var fs = require('fs');
-  
+
   var openPr = JSON.parse(fs.readFileSync('./../ops/dev/fakes/pr/open.json', 'utf8'));
   await onPrOpen({ payload: { pull_request: openPr } })
 
   // var squashAndMergedPr = JSON.parse(fs.readFileSync('./../ops/dev/fakes/pr/squash_and_merge.json', 'utf8'));
   // await onPrClose({ payload: { pull_request: squashAndMergedPr } })
-  
+
   // var closedPr = JSON.parse(fs.readFileSync('./../ops/dev/fakes/pr/close.json', 'utf8'));
   // await onPrClose({ payload: { pull_request: closedPr } })
 }
