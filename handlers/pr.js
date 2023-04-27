@@ -35,11 +35,11 @@ function isPrFromDevelopToStagingBranch(pr) {
 }
 
 function isPrToMasterBranch(pr) {
-  return pr.to === "master";
+  return pr.to === "master" || pr.to === "gov-master";
 }
 
 function isPrFromMasterBranch(pr) {
-  return pr.from === "gov-master";
+  return pr.from === "gov-master" || pr.from === "master";
 }
 
 function isPrToStagingBranch(pr) {
