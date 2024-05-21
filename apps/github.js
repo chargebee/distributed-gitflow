@@ -33,9 +33,13 @@ async function mergePr(context, pr, onMergeFailure) {
       break;
     } catch (e) {
       console.log(`Unable to merge the PR ${pr.number} due to ${e.message}.`);
-      if (i < maxRetries) {
-        console.log(` Retrying... sleeping for ${(i + 2)} minute(s)`)
+      ifFailure=e.message.include("failing")
+      if (i < maxRetries && ifFailure === false) {
+        console.log(` Retrying... sleeping for ${(i + 1)} minute(s)`)
         await timeout(60 * (i + 1) * 1000);
+      }
+      else if (ifFailure === true) {
+        console.log(` Failed to merge the PR. Please check the Pull Request`)
       }
     }
   }
