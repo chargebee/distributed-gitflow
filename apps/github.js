@@ -40,6 +40,7 @@ async function mergePr(context, pr, onMergeFailure) {
       }
       else if (ifFailure === true) {
         console.log(` Failed to merge the PR. Please check the Pull Request`)
+        cons.l
       }
     }
   }
