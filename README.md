@@ -29,6 +29,8 @@ on:
       types:
         - opened
         - closed
+        - synchronize # See https://mychargebee.atlassian.net/browse/TECHINT-498
+
       branches:  
         - master  
         - 'staging/**'
