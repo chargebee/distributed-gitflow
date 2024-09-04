@@ -41,7 +41,7 @@ jobs:
   prStatusChange:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Node 
+      - name: Install Node  # See https://github.com/chargebee/chargebee-app/pull/37468
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
