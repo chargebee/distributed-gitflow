@@ -39,11 +39,17 @@ jobs:
   prStatusChange:
     runs-on: ubuntu-latest
     steps:
+      - name: Install Node 
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
       - name: Obtain GitHub App Installation Access Token
         id: githubAppAuth
         run: |
           TOKEN="$(npx obtain-github-app-installation-access-token ci ${{ secrets.GH_APP_CREDENTIALS_TOKEN }})"
           echo "::set-output name=GH_APP_TOKEN::$TOKEN"
+
       - uses: chargebee/distributed-gitflow@master
         env:
           GITHUB_TOKEN: ${{ steps.githubAppAuth.outputs.GH_APP_TOKEN }}
