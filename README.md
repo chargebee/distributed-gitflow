@@ -5,6 +5,9 @@ A GitHub action implementation to support [Distributed Git Flow](docs/distribute
 This action automatically raises the PRs to sync the upstream branch changes with the corresponding downstream branches. It will take care of merging this PR without any 
 manual intervention if there is no merge conflict. In case of any merge conflicts, it notifies the respective squad via Slack. It also reports the squads on PR create and merge.
 
+To add this action to a repository, please add the following GitHub Worklow to the repository and configure branches as specified in [this confluence page](https://mychargebee.atlassian.net/wiki/spaces/~936350833/pages/2855272524/Distributed+Git+Flow+-+New+SQUAD+onboarding+checklist).
+
+
 ## GitHub Action Configuration
 
 To configure this action on a GitHub repository, you need two secrets
@@ -14,7 +17,7 @@ To configure this action on a GitHub repository, you need two secrets
     - Contents - Read & Write
     - Metadata - Read Only
     - Pull Requests - Read & Write
-  - We already have a GitHub App created called Distributed Git Flow. It is recommended to use this App while adding Distributed Git Flow to other repositories. The credential of this app is stored as an organization secret which can be accessed using `secrets.DISTRIBUTED_GITFLOW_GH_APP_CREDENTIALS_TOKEN`. See https://github.com/chargebee/chargebee-integration/blob/master/.github/workflows/pr.yml#L27.
+  - We already have a GitHub App created called Distributed Git Flow. It is recommended to use this App while adding Distributed Git Flow to other repositories. The credential of this app is stored as an organization secret which can be accessed using `secrets.DISTRIBUTED_GITFLOW_GH_APP_CREDENTIALS_TOKEN`. See this [example](https://github.com/chargebee/chargebee-integration/blob/master/.github/workflows/pr.yml#L27).
     - Please note that you need to give this bot the access to your repository. Go to Organization Settings &#8594; GitHub Apps (under Third Party Access) &#8594; Distributed Git Flow &#8594; Configure &#8594; Add the repository in selected repositories.
 
 * `SLACK_BOT_TOKEN`
@@ -24,7 +27,7 @@ To configure this action on a GitHub repository, you need two secrets
       - `develop-mantis` - To notify the PR open/close changes and merge conflicts on the `develop/mantis` branch
       - `staging-viper` - To notify the PR open/close changes and merge conflicts on the `staging/viper` branch
       - `develop-viper` - To notify the PR open/close changes and merge conflicts on the `develop/viper` branch
-  - We already have a Slack Bot created called Distributed Git Flow. The Slack credentials of this token is stored as an organization secret and can be accessed using `secrets.DISTRIBUTED_GITFLOW_SLACK_BOT_TOKEN`. See https://github.com/chargebee/chargebee-integration/blob/master/.github/workflows/pr.yml#L32.
+  - We already have a Slack Bot created called Distributed Git Flow. The Slack credentials of this token is stored as an organization secret and can be accessed using `secrets.DISTRIBUTED_GITFLOW_SLACK_BOT_TOKEN`. See this [example](https://github.com/chargebee/chargebee-integration/blob/master/.github/workflows/pr.yml#L32).
     - You need to give this app access to the slack channels. To give access, go to your Slack channel &#8594; Integrations &#8594; Add Apps &#8594; Select Distributed Git Flow  
 
 ```yaml
@@ -95,7 +98,7 @@ After successful configuration of this GitHub action as mentioned above, it will
 - If the PR is from the corresponding `staging` branch, it will be automatically merged. In case of merge conflicts, the PR will be closed and notifies about the merge conflict on the `develop/{squad_name}` channel
 
 
-## How to make changes and deploy
+## Contributing Guidelines 
 1. create a new branch
 2. make the required changes and build the package using the `npm run release` command.
 3. raise a PR to the `master` branch
