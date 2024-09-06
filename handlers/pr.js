@@ -1,6 +1,7 @@
 const notifications = require("./../notifications/pr");
 const github = require("./../apps/github");
 const core = require('@actions/core');
+const { masterBranch } = require("../constants");
 
 function toPr(context) {
   let { base, body, user, html_url, title, number, head, id} = context.payload.pull_request
@@ -22,8 +23,9 @@ async function fetchingStagingBranchNames(context) {
   return branchNames.filter(branchName => branchName.startsWith("staging/"))
 }
 
+
 function isPrFromMasterToStagingBranch(pr) {
-  return pr.from === "master" && pr.to.startsWith("staging/")
+  return pr.from === masterBranch && pr.to.startsWith("staging/")
 }
 
 function isPrFromStagingToDevelopBranch(pr) {
@@ -35,11 +37,11 @@ function isPrFromDevelopToStagingBranch(pr) {
 }
 
 function isPrToMasterBranch(pr) {
-  return pr.to === "master";
+  return pr.to === masterBranch;
 }
 
 function isPrFromMasterBranch(pr) {
-  return pr.from === "master";
+  return pr.from === masterBranch;
 }
 
 function isPrToStagingBranch(pr) {
@@ -133,11 +135,11 @@ async function raisePrToAllStagingBranches(context, onMergeConflict) {
   let stagingBranchNames = await fetchingStagingBranchNames(context)
   console.log(`Raising PR to all staging branches - ${stagingBranchNames.join(", ")}`)
   return stagingBranchNames.map(async (branchName) => {
-    let existingOpenPr = await github.fetchOpenPr(context, "master", branchName);
+    let existingOpenPr = await github.fetchOpenPr(context, masterBranch, branchName);
     if (existingOpenPr) {
       await github.closePr(context, existingOpenPr.number)
     }
-    let createdPr = await github.createPr(context, "master", branchName, "Syncing with latest master")
+    let createdPr = await github.createPr(context, masterBranch, branchName, `Syncing with latest ${masterBranch}`)
     let newPr = toPr({payload: {pull_request: createdPr.data}})
     let isMergeable = await github.isMergeable(context, newPr.number)
     if (isMergeable === false) {

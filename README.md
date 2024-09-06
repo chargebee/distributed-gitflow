@@ -82,7 +82,7 @@ After successful configuration of this GitHub action as mentioned above, it will
 
 
 ## How to make changes and deploy
-1. create a new branch
+1. create a new branch, run `npm install`.
 2. make the required changes and build the package using the `npm run release` command.
 3. raise a PR to the `master` branch
 4. After the PR merge, the updated GitHub action can be a accessed from `chargebee/distributed-gitflow@master` 
