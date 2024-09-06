@@ -9,17 +9,23 @@ manual intervention if there is no merge conflict. In case of any merge conflict
 
 To configure this action on a GitHub repository, you need two secrets
 
-* `GH_APP_CREDENTIALS_TOKEN` - A GitHub Action Credentials token that can be obtained by following [this tutorial](https://dev.to/dtinth/authenticating-as-a-github-app-in-a-github-actions-workflow-27co). This GitHub App requires the following permissions
-  - Contents - Read & Write
-  - Metadata - Read Only
-  - Pull Requests - Read & Write
+* `GH_APP_CREDENTIALS_TOKEN`
+  - A GitHub Action Credentials token that can be obtained by following [this tutorial](https://dev.to/dtinth/authenticating-as-a-github-app-in-a-github-actions-workflow-27co). This GitHub App requires the following permissions
+    - Contents - Read & Write
+    - Metadata - Read Only
+    - Pull Requests - Read & Write
+  - We already have a GitHub App created called Distributed Git Flow. It is recommended to use this App while adding Distributed Git Flow to other repositories. The credential of this app is stored as an organization secret which can be accessed using `secrets.DISTRIBUTED_GITFLOW_GH_APP_CREDENTIALS_TOKEN`. See https://github.com/chargebee/chargebee-integration/blob/master/.github/workflows/pr.yml#L27.
+    - Please note that you need to give this bot the access to your repository. Go to Organization Settings &#8594; GitHub Apps (under Third Party Access) &#8594; Distributed Git Flow &#8594; Configure &#8594; Add the repository in selected repositories.
 
-* `SLACK_BOT_TOKEN` - A Slack Bot Token, that can be obtained by creating a new app in your slack workspace with the [chat:write](https://api.slack.com/scopes/chat:write) OAuth Permission. After creating the slack app, make sure you are creating the required squad's slack channels in your slack workspace and add this newly created slack app to those channels. For example, if you have two squads, `mantis` and `viper`, then you need the following channels
-  - `master` - To notify the PR open/close changes on the `master` branch
-  - `staging-mantis` - To notify the PR open/close changes and merge conflicts on the `staging/mantis` branch
-  - `develop-mantis` - To notify the PR open/close changes and merge conflicts on the `develop/mantis` branch
-  - `staging-viper` - To notify the PR open/close changes and merge conflicts on the `staging/viper` branch
-  - `develop-viper` - To notify the PR open/close changes and merge conflicts on the `develop/viper` branch
+* `SLACK_BOT_TOKEN`
+  - A Slack Bot Token, that can be obtained by creating a new app in your slack workspace with the [chat:write](https://api.slack.com/scopes/chat:write) OAuth Permission. After creating the slack app, make sure you are creating the required squad's slack channels in your slack workspace and add this newly created slack app to those channels. For example, if you have two squads, `mantis` and `viper`, then you need the following channels
+      - `master` - To notify the PR open/close changes on the `master` branch
+      - `staging-mantis` - To notify the PR open/close changes and merge conflicts on the `staging/mantis` branch
+      - `develop-mantis` - To notify the PR open/close changes and merge conflicts on the `develop/mantis` branch
+      - `staging-viper` - To notify the PR open/close changes and merge conflicts on the `staging/viper` branch
+      - `develop-viper` - To notify the PR open/close changes and merge conflicts on the `develop/viper` branch
+  - We already have a Slack Bot created called Distributed Git Flow. The Slack credentials of this token is stored as an organization secret and can be accessed using `secrets.DISTRIBUTED_GITFLOW_SLACK_BOT_TOKEN`. See https://github.com/chargebee/chargebee-integration/blob/master/.github/workflows/pr.yml#L32.
+    - You need to give this app access to the slack channels. To give access, go to your Slack channel &#8594; Integrations &#8594; Add Apps &#8594; Select Distributed Git Flow  
 
 ```yaml
 # .github/workflows/pr.yml
