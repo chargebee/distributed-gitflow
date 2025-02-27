@@ -65,6 +65,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.githubAppAuth.outputs.GH_APP_TOKEN }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          PRIMARY_BRANCH: 'master'
 ```
 
 ## What it does
