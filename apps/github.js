@@ -30,8 +30,7 @@ async function mergePr(context, pr, onMergeFailure) {
     try {
       await context.octokit.pulls.merge(context.repo({
         pull_number : pr.number, 
-        commit_message : "\r\n\r\n skip-checks: true",
-        merge_method : "squash"
+        commit_message : "\r\n\r\n skip-checks: true"
       }))
       isMerged = true
       break;
