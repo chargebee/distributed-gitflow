@@ -25,8 +25,7 @@ function channelName(pr) {
   if (process.env.SLACK_CHANNEL_PREFIX) {
     return process.env.SLACK_CHANNEL_PREFIX + "-" + chnName;
   }
-  // return chnName;
-  return 'p1-test';
+  return chnName;
 }
 
 function header(pr, text) {

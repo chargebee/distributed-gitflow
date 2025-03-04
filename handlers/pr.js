@@ -173,9 +173,13 @@ async function onPrMerge(context, pr, mergedBy) {
   }
   
   if (isPrToStagingBranch(pr)) {
-    if (!isPrFromDevelopToStagingBranch(pr)) {
-      promises.push(raisePrToCorrespondingDevelopBranch(context, pr, notifySlackAboutMergeConflictAndClosePr))
-    }
+    /**
+     * since we dont need develop branches in cb-qa-testing repo  
+     * 
+     */
+    // if (!isPrFromDevelopToStagingBranch(pr)) {
+    //   promises.push(raisePrToCorrespondingDevelopBranch(context, pr, notifySlackAboutMergeConflictAndClosePr))
+    // }
     if (!isPrFromDevelopToStagingBranch(pr) && !isPrFromMasterBranch(pr)) {
       promises.push(github.deleteBranch(context, pr.from))
     }
