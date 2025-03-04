@@ -43,7 +43,7 @@ async function notifyNewPR(pr) {
   }
   let textMessage = `${pr.authorHandle} has raised a PR, ${pr.title}(${pr.url}), from ${pr.from}`
   await slack.sendMessage(channelName(pr), textMessage, [
-    header(pr, "New PR"),
+    header(pr, "New PR on cb-qa-testing"),
     slack.markdown(pr.title),
     slack.emptyline(),
     entry("From", `${pr.authorHandle} (${pr.from})`),
@@ -56,7 +56,7 @@ async function notifyMergedPR(pr, mergedBy) {
   let textMessage = `${mergedBy} has merged a PR ${pr.title}(${pr.url})`
   if (isAuthoredByBot(mergedBy)) {
     await slack.sendMessage(channelName(pr), textMessage, [
-      slack.markdown(pr.title + " - completed")
+      slack.markdown("[cb-qa-testing] " + pr.title + " - completed")
     ]);
     return
   }
@@ -77,7 +77,7 @@ async function notifyClosedPR(pr, closedBy) {
   let textMessage = `${closedBy} has closed a PR ${pr.title}(${pr.url})`
   await slack.sendMessage(channelName(pr), textMessage, [
     slack.header(":negative_squared_cross_mark: PR Closed :negative_squared_cross_mark:"),
-    slack.markdown(pr.title),
+    slack.markdown("[cb-qa-testing] " + pr.title),
     slack.emptyline(),
     entry("Closed By", closedBy),
     entry("URL", pr.url),
@@ -89,7 +89,7 @@ async function notifyPrHasConflicts(pr) {
   let textMessage = `MERGE CONFLICT - ${pr.title}(${pr.url})`
   await slack.sendMessage(channelName(pr), textMessage, [
     slack.header(":alert: MERGE CONFLICT :alert:"),
-    slack.markdown(pr.title),
+    slack.markdown("[cb-qa-testing] " + pr.title),
     slack.emptyline(),
     entry("URL", pr.url),
     slack.emptyline(),
@@ -101,7 +101,7 @@ async function notifyPrMergeFailed(pr) {
   let textMessage = `AUTO SYNC FAILED - ${pr.title}(${pr.url})`
   await slack.sendMessage(channelName(pr), textMessage, [
     slack.header(":need_action: AUTO SYNC FAILED :need_action:"),
-    slack.markdown(pr.title),
+    slack.markdown("[cb-qa-testing] " + pr.title),
     slack.emptyline(),
     entry("URL", pr.url),
     slack.emptyline(),
