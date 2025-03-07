@@ -38,7 +38,7 @@ on:
       types:
         - opened
         - closed
-        - synchronize # See https://mychargebee.atlassian.net/browse/TECHINT-498
+        - synchronize 
 
       branches:  
         - master  
@@ -50,7 +50,7 @@ jobs:
   prStatusChange:
     runs-on: ubuntu-latest
     steps:
-      - name: Install Node  # See https://github.com/chargebee/chargebee-app/pull/37468
+      - name: Install Node
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
