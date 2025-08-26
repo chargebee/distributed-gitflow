@@ -114,6 +114,7 @@ async function onPrOpen(context) {
   ]
 
   if (isPrFromMasterToStagingBranch(pr) || isPrFromStagingToDevelopBranch(pr)) {
+    await github.resolveAllComments(context, pr.number);
     const isMergeable = await github.isMergeable(context, pr.number)
     if (isMergeable === false) {
       await Promise.all([

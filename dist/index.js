@@ -51,6 +51,22 @@ async function setLabels(context, issueNumber, labels) {
   await context.octokit.issues.setLabels(context.repo({issue_number: issueNumber, labels: labels}))
 }
 
+async function resolveAllComments(context, prNumber) {
+    const { data: comments } = await context.octokit.request(
+      'GET /repos/{owner}/{repo}/pulls/{pull_number}/comments', 
+      context.repo({pull_number: prNumber})
+    )
+
+    for (const comment of comments) {
+        if (comment.user.login !== 'cursor[bot]') continue;
+        console.log("deleting comment : " + comment.id);
+        await context.octokit.request(
+          'DELETE /repos/{owner}/{repo}/pulls/comments/{comment_id}', 
+          context.repo({comment_id: comment.id})
+        );
+    }
+}
+
 async function mergePr(context, pr, onMergeFailure) {
   const maxRetries = 5
   let i = 0
@@ -103,7 +119,7 @@ async function closePr(context, prNumber) {
   await context.octokit.pulls.update(context.repo({pull_number: prNumber, state : "closed"}))
 }
 
-module.exports = {fetchProtectedBranchNames, createPr, setLabels, mergePr, deleteBranch, isMergeable, closePr, fetchOpenPr}
+module.exports = {fetchProtectedBranchNames, createPr, setLabels, mergePr, deleteBranch, isMergeable, closePr, fetchOpenPr, resolveAllComments}
 
 
 /***/ }),
@@ -285,6 +301,7 @@ async function onPrOpen(context) {
   ]
 
   if (isPrFromMasterToStagingBranch(pr) || isPrFromStagingToDevelopBranch(pr)) {
+    await github.resolveAllComments(context, pr.number);
     const isMergeable = await github.isMergeable(context, pr.number)
     if (isMergeable === false) {
       await Promise.all([
