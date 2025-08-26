@@ -297,8 +297,8 @@ async function onPrOpen(context) {
   }
 
   let promises = [
-    notifications.prOpened(pr),
-    github.setLabels(context, pr.number, [pr.to])
+    // notifications.prOpened(pr),
+    // github.setLabels(context, pr.number, [pr.to])
   ]
 
   if (isPrFromMasterToStagingBranch(pr) || isPrFromStagingToDevelopBranch(pr)) {
