@@ -95,4 +95,4 @@ async function closePr(context, prNumber) {
   await context.octokit.pulls.update(context.repo({pull_number: prNumber, state : "closed"}))
 }
 
-module.exports = {fetchProtectedBranchNames, createPr, setLabels, mergePr, deleteBranch, isMergeable, closePr, fetchOpenPr, resolveAllComments}
+module.exports = {fetchProtectedBranchNames, createPr, setLabels, mergePr, deleteBranch, isMergeable, closePr, fetchOpenPr}
