@@ -29,7 +29,7 @@ async function resolveAllComments(context, prNumber) {
     )
 
     for (const comment of comments) {
-        if (comment.user.login !== 'cursor[bot]' && comment.user.login !== "cb-jarunmadhesh") continue;
+        if (comment.user.login !== 'cursor[bot]') continue;
         console.log("deleting comment : " + comment.id);
         await context.octokit.request(
           'DELETE /repos/{owner}/{repo}/pulls/comments/{comment_id}', 
