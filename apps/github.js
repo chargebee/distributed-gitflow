@@ -29,7 +29,7 @@ async function resolveAllComments(context, prNumber) {
     )
 
     for (const comment of comments) {
-        if (comment.user.login !== 'cursor[bot]') continue;
+        if (comment.user.login !== 'cursor[bot]' || comment.user.login !== "cb-jarunmadhesh") continue;
         console.log("deleting comment : " + comment.id);
         await context.octokit.request(
           'DELETE /repos/{owner}/{repo}/pulls/comments/{comment_id}', 
@@ -72,6 +72,7 @@ async function isMergeable (context, prNumber) {
   const maxRetries = 5
   let i = 0
   while (i++ < maxRetries) {
+    await resolveAllComments(context, prNumber);
     const pr = await context.octokit.pulls.get(context.repo({pull_number: prNumber}))
     console.log(`PR Details of ${prNumber}`)
     console.log(JSON.stringify(pr.data, null, 2));
