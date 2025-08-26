@@ -51,6 +51,26 @@ async function setLabels(context, issueNumber, labels) {
   await context.octokit.issues.setLabels(context.repo({issue_number: issueNumber, labels: labels}))
 }
 
+async function resolveAllComments(context, prNumber) {
+  try {
+    const { data: comments } = await context.octokit.request(
+      'GET /repos/{owner}/{repo}/pulls/{pull_number}/comments', 
+      context.repo({pull_number: prNumber})
+    )
+
+    for (const comment of comments) {
+        if (comment.user.login !== 'cursor[bot]') continue;
+        console.log("deleting comment : " + comment.id);
+        await context.octokit.request(
+          'DELETE /repos/{owner}/{repo}/pulls/comments/{comment_id}', 
+          context.repo({comment_id: comment.id})
+        );
+    }
+  } catch(err) {
+    console.error(err);
+  }
+}
+
 async function mergePr(context, pr, onMergeFailure) {
   const maxRetries = 5
   let i = 0
@@ -88,6 +108,7 @@ async function isMergeable (context, prNumber) {
   const maxRetries = 5
   let i = 0
   while (i++ < maxRetries) {
+    await resolveAllComments(context, prNumber);
     const pr = await context.octokit.pulls.get(context.repo({pull_number: prNumber}))
     console.log(`PR Details of ${prNumber}`)
     console.log(JSON.stringify(pr.data, null, 2));
