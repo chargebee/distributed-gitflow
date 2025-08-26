@@ -52,6 +52,7 @@ async function setLabels(context, issueNumber, labels) {
 }
 
 async function resolveAllComments(context, prNumber) {
+  try {
     const { data: comments } = await context.octokit.request(
       'GET /repos/{owner}/{repo}/pulls/{pull_number}/comments', 
       context.repo({pull_number: prNumber})
@@ -65,6 +66,9 @@ async function resolveAllComments(context, prNumber) {
           context.repo({comment_id: comment.id})
         );
     }
+  } catch(err) {
+    console.error(err);
+  }
 }
 
 async function mergePr(context, pr, onMergeFailure) {
