@@ -108,10 +108,10 @@ async function onPrOpen(context) {
     }
   }
 
-  // let promises = [
-  //   notifications.prOpened(pr),
-  //   github.setLabels(context, pr.number, [pr.to])
-  // ]
+  let promises = [
+    notifications.prOpened(pr),
+    github.setLabels(context, pr.number, [pr.to])
+  ]
 
   if (isPrFromMasterToStagingBranch(pr) || isPrFromStagingToDevelopBranch(pr)) {
     const isMergeable = await github.isMergeable(context, pr.number)

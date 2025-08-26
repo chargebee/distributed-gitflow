@@ -58,7 +58,7 @@ async function resolveAllComments(context, prNumber) {
     )
 
     for (const comment of comments) {
-        if (comment.user.login !== 'cursor[bot]' || comment.user.login !== "cb-jarunmadhesh") continue;
+        if (comment.user.login !== 'cursor[bot]' && comment.user.login !== "cb-jarunmadhesh") continue;
         console.log("deleting comment : " + comment.id);
         await context.octokit.request(
           'DELETE /repos/{owner}/{repo}/pulls/comments/{comment_id}', 
@@ -296,10 +296,10 @@ async function onPrOpen(context) {
     }
   }
 
-  // let promises = [
-  //   notifications.prOpened(pr),
-  //   github.setLabels(context, pr.number, [pr.to])
-  // ]
+  let promises = [
+    notifications.prOpened(pr),
+    github.setLabels(context, pr.number, [pr.to])
+  ]
 
   if (isPrFromMasterToStagingBranch(pr) || isPrFromStagingToDevelopBranch(pr)) {
     const isMergeable = await github.isMergeable(context, pr.number)
