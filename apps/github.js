@@ -48,7 +48,6 @@ async function mergePr(context, pr, onMergeFailure) {
   let isMerged = false
   while (i++ < maxRetries) {
     try {
-      await resolveAllComments(context, prNumber);
       await context.octokit.pulls.merge(context.repo({pull_number : pr.number, commit_message : "\r\n\r\n skip-checks: true"}))
       isMerged = true
       break;
