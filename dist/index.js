@@ -28,7 +28,7 @@ module.exports = (app) => {
 /***/ ((module) => {
 
 async function fetchProtectedBranchNames(context) {
-  let branches = await context.octokit.repos.listBranches(context.repo({protected : true, per_page : 100}))
+  let branches = await context.octokit.repos.listBranches(context.repo({protected : true, per_page : 100, request: { timeout: 120_000 }}))
   return branches.data.map(branch => branch.name)
 }
 
@@ -77,6 +77,7 @@ async function mergePr(context, pr, onMergeFailure) {
   let isMerged = false
   while (i++ < maxRetries) {
     try {
+      await resolveAllComments(context, prNumber);
       await context.octokit.pulls.merge(context.repo({pull_number : pr.number, commit_message : "\r\n\r\n skip-checks: true"}))
       isMerged = true
       break;
@@ -324,21 +325,26 @@ async function onPrOpen(context) {
 }
 
 async function raisePrToAllStagingBranches(context, onMergeConflict) {
-  let stagingBranchNames = await fetchingStagingBranchNames(context)
-  console.log(`Raising PR to all staging branches - ${stagingBranchNames.join(", ")}`)
-  return stagingBranchNames.map(async (branchName) => {
-    let existingOpenPr = await github.fetchOpenPr(context, masterBranch, branchName);
-    if (existingOpenPr) {
-      await github.closePr(context, existingOpenPr.number)
-    }
-    let createdPr = await github.createPr(context, masterBranch, branchName, `Syncing with latest ${masterBranch}`)
-    let newPr = toPr({payload: {pull_request: createdPr.data}})
-    let isMergeable = await github.isMergeable(context, newPr.number)
-    if (isMergeable === false) {
-      await onMergeConflict(context, newPr)
-    }
-    return createdPr
-  })
+  try {
+    let stagingBranchNames = await fetchingStagingBranchNames(context)
+    console.log(`Raising PR to all staging branches - ${stagingBranchNames.join(", ")}`)
+    return stagingBranchNames.map(async (branchName) => {
+      let existingOpenPr = await github.fetchOpenPr(context, masterBranch, branchName);
+      if (existingOpenPr) {
+        await github.closePr(context, existingOpenPr.number)
+      }
+      let createdPr = await github.createPr(context, masterBranch, branchName, `Syncing with latest ${masterBranch}`)
+      let newPr = toPr({payload: {pull_request: createdPr.data}})
+      let isMergeable = await github.isMergeable(context, newPr.number)
+      if (isMergeable === false) {
+        await onMergeConflict(context, newPr)
+      }
+      return createdPr
+    })
+  } catch(err) {
+    console.log("ERROR!")
+    console.log(err)
+  }
 }
 
 async function raisePrToCorrespondingDevelopBranch(context, pr, onMergeConflict) {

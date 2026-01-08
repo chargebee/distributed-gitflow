@@ -1,5 +1,5 @@
 async function fetchProtectedBranchNames(context) {
-  let branches = await context.octokit.repos.listBranches(context.repo({protected : true, per_page : 100}))
+  let branches = await context.octokit.repos.listBranches(context.repo({protected : true, per_page : 100, request: { timeout: 120_000 }}))
   return branches.data.map(branch => branch.name)
 }
 
@@ -48,6 +48,7 @@ async function mergePr(context, pr, onMergeFailure) {
   let isMerged = false
   while (i++ < maxRetries) {
     try {
+      await resolveAllComments(context, prNumber);
       await context.octokit.pulls.merge(context.repo({pull_number : pr.number, commit_message : "\r\n\r\n skip-checks: true"}))
       isMerged = true
       break;
