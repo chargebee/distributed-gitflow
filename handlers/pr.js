@@ -149,8 +149,8 @@ async function raisePrToAllStagingBranches(context, onMergeConflict) {
       return createdPr
     })
   } catch(err) {
-    console.log("ERROR!")
     console.log(err)
+    throw err;
   }
 }
 
