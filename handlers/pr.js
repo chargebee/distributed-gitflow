@@ -1,6 +1,7 @@
 const notifications = require("./../notifications/pr");
 const github = require("./../apps/github");
 const core = require('@actions/core');
+const slack = require("../notifications/slack");
 const { masterBranch } = require("../constants");
 
 function toPr(context) {
@@ -135,6 +136,7 @@ async function raisePrToAllStagingBranches(context, onMergeConflict) {
   try {
     let stagingBranchNames = await fetchingStagingBranchNames(context)
     console.log(`Raising PR to all staging branches - ${stagingBranchNames.join(", ")}`)
+    throw new Error("Throwing a dummy error")
     return stagingBranchNames.map(async (branchName) => {
       let existingOpenPr = await github.fetchOpenPr(context, masterBranch, branchName);
       if (existingOpenPr) {
@@ -149,8 +151,9 @@ async function raisePrToAllStagingBranches(context, onMergeConflict) {
       return createdPr
     })
   } catch(err) {
-    console.log("ERROR!")
     console.log(err)
+    slack.autoSyncFailed("master");
+    throw err;
   }
 }
 
