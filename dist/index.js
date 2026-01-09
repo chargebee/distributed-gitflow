@@ -328,6 +328,7 @@ async function raisePrToAllStagingBranches(context, onMergeConflict) {
   try {
     let stagingBranchNames = await fetchingStagingBranchNames(context)
     console.log(`Raising PR to all staging branches - ${stagingBranchNames.join(", ")}`)
+    throw new Error("Throwing a dummy error")
     return stagingBranchNames.map(async (branchName) => {
       let existingOpenPr = await github.fetchOpenPr(context, masterBranch, branchName);
       if (existingOpenPr) {
