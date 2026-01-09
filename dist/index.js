@@ -193,6 +193,7 @@ exports.masterBranch = masterBranch;
 const notifications = __nccwpck_require__(53474);
 const github = __nccwpck_require__(76898);
 const core = __nccwpck_require__(42186);
+const slack = __nccwpck_require__(38154);
 const { masterBranch } = __nccwpck_require__(51629);
 
 function toPr(context) {
@@ -327,6 +328,7 @@ async function raisePrToAllStagingBranches(context, onMergeConflict) {
   try {
     let stagingBranchNames = await fetchingStagingBranchNames(context)
     console.log(`Raising PR to all staging branches - ${stagingBranchNames.join(", ")}`)
+    throw new Error("Throwing an error to test")
     return stagingBranchNames.map(async (branchName) => {
       let existingOpenPr = await github.fetchOpenPr(context, masterBranch, branchName);
       if (existingOpenPr) {
@@ -342,6 +344,7 @@ async function raisePrToAllStagingBranches(context, onMergeConflict) {
     })
   } catch(err) {
     console.log(err)
+    slack.autoSyncFailed("master");
     throw err;
   }
 }
@@ -108038,7 +108041,14 @@ async function notifyPrMergeFailed(pr) {
     slack.markdown(`Team <!here>, fix it by merging <${pr.url}|this PR> *manually*.`)
   ])
 }
-module.exports = {notifyNewPR, notifyMergedPR, notifyClosedPR, notifyPrHasConflicts, notifyPrMergeFailed}
+
+async function autoSyncFailed(channelName) {
+  let textMessage = `AUTO SYNC FAILED`
+  await slack.sendMessage(channelName, textMessage, [
+    slack.header(":need_action: AUTO SYNC FAILED :need_action:")
+  ])
+}
+module.exports = {notifyNewPR, notifyMergedPR, notifyClosedPR, notifyPrHasConflicts, notifyPrMergeFailed, autoSyncFailed}
 
 /***/ }),
 
