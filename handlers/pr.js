@@ -1,6 +1,7 @@
 const notifications = require("./../notifications/pr");
 const github = require("./../apps/github");
 const core = require('@actions/core');
+const slack = require("../notifications/slack");
 const { masterBranch } = require("../constants");
 
 function toPr(context) {
@@ -150,6 +151,7 @@ async function raisePrToAllStagingBranches(context, onMergeConflict) {
     })
   } catch(err) {
     console.log(err)
+    slack.autoSyncFailed("master");
     throw err;
   }
 }

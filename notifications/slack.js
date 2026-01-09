@@ -108,4 +108,11 @@ async function notifyPrMergeFailed(pr) {
     slack.markdown(`Team <!here>, fix it by merging <${pr.url}|this PR> *manually*.`)
   ])
 }
-module.exports = {notifyNewPR, notifyMergedPR, notifyClosedPR, notifyPrHasConflicts, notifyPrMergeFailed}
+
+async function autoSyncFailed(channelName) {
+  let textMessage = `AUTO SYNC FAILED`
+  await slack.sendMessage(channelName, textMessage, [
+    slack.header(":need_action: AUTO SYNC FAILED :need_action:")
+  ])
+}
+module.exports = {notifyNewPR, notifyMergedPR, notifyClosedPR, notifyPrHasConflicts, notifyPrMergeFailed, autoSyncFailed}
