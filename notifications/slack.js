@@ -37,6 +37,10 @@ function entry(label, value) {
   return slack.markdown(`*${label}:* ${value}`)
 }
 
+function repoPrefix(pr) {
+  return pr && pr.repoFullName ? `[${pr.repoFullName}] ` : ""
+}
+
 async function notifyNewPR(pr) {
   if (isAuthoredByBot(pr.authorHandle)) {
     return;
@@ -55,8 +59,9 @@ async function notifyNewPR(pr) {
 async function notifyMergedPR(pr, mergedBy) {
   let textMessage = `${mergedBy} has merged a PR ${pr.title}(${pr.url})`
   if (isAuthoredByBot(mergedBy)) {
+    let completedMessage = `${repoPrefix(pr)}${pr.title} - completed`
     await slack.sendMessage(channelName(pr), textMessage, [
-      slack.markdown(pr.title + " - completed")
+      slack.markdown(completedMessage)
     ]);
     return
   }
