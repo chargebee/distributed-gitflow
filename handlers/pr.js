@@ -6,6 +6,9 @@ const { masterBranch } = require("../constants");
 
 function toPr(context) {
   let { base, body, user, html_url, title, number, head, id} = context.payload.pull_request
+  let repoFullName = (base && base.repo && base.repo.full_name) ||
+    (head && head.repo && head.repo.full_name) || "";
+  
   return {
     description: body,
     authorHandle: user.login,
@@ -15,7 +18,8 @@ function toPr(context) {
     from: head.ref, 
     to: base.ref,
     id: id,
-    typeOfChange: head.ref.split('/')[0]
+    typeOfChange: head.ref.split('/')[0],
+    repoFullName: repoFullName
   }
 }
 

@@ -198,6 +198,9 @@ const { masterBranch } = __nccwpck_require__(51629);
 
 function toPr(context) {
   let { base, body, user, html_url, title, number, head, id} = context.payload.pull_request
+  let repoFullName = (base && base.repo && base.repo.full_name) ||
+    (head && head.repo && head.repo.full_name) || "";
+  
   return {
     description: body,
     authorHandle: user.login,
@@ -207,7 +210,8 @@ function toPr(context) {
     from: head.ref, 
     to: base.ref,
     id: id,
-    typeOfChange: head.ref.split('/')[0]
+    typeOfChange: head.ref.split('/')[0],
+    repoFullName: repoFullName
   }
 }
 
@@ -414,6 +418,7 @@ async function test() {
   // var closedPr = JSON.parse(fs.readFileSync('./../ops/dev/fakes/pr/close.json', 'utf8'));
   // await onPrClose({ payload: { pull_request: closedPr } })
 }
+
 
 /***/ }),
 
@@ -107969,6 +107974,10 @@ function entry(label, value) {
   return slack.markdown(`*${label}:* ${value}`)
 }
 
+function repoPrefix(pr) {
+  return pr && pr.repoFullName ? `[${pr.repoFullName}] ` : ""
+}
+
 async function notifyNewPR(pr) {
   if (isAuthoredByBot(pr.authorHandle)) {
     return;
@@ -107987,8 +107996,9 @@ async function notifyNewPR(pr) {
 async function notifyMergedPR(pr, mergedBy) {
   let textMessage = `${mergedBy} has merged a PR ${pr.title}(${pr.url})`
   if (isAuthoredByBot(mergedBy)) {
+    let completedMessage = `${repoPrefix(pr)}${pr.title} - completed`
     await slack.sendMessage(channelName(pr), textMessage, [
-      slack.markdown(pr.title + " - completed")
+      slack.markdown(completedMessage)
     ]);
     return
   }
@@ -108048,6 +108058,7 @@ async function autoSyncFailed(channelName) {
   ])
 }
 module.exports = {notifyNewPR, notifyMergedPR, notifyClosedPR, notifyPrHasConflicts, notifyPrMergeFailed, autoSyncFailed}
+
 
 /***/ }),
 
