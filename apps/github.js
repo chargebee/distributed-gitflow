@@ -1,6 +1,45 @@
 async function fetchProtectedBranchNames(context) {
-  let branches = await context.octokit.repos.listBranches(context.repo({protected : true, per_page : 100, request: { timeout: 120_000 }}))
-  return branches.data.map(branch => branch.name)
+  // Prefer GraphQL over REST GET /branches?protected=true. On large repos the REST
+  // filter evaluates protection across every branch and can 504 (~10s gateway limit).
+  // Querying staging/* refs and reading branchProtectionRule avoids that scan.
+  const { owner, repo } = context.repo()
+  const branchNames = []
+  let cursor = null
+
+  while (true) {
+    const { repository } = await context.octokit.graphql(
+      `query($owner: String!, $name: String!, $cursor: String) {
+        repository(owner: $owner, name: $name) {
+          refs(refPrefix: "refs/heads/", query: "staging/", first: 100, after: $cursor) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            nodes {
+              name
+              branchProtectionRule {
+                id
+              }
+            }
+          }
+        }
+      }`,
+      { owner, name: repo, cursor }
+    )
+
+    for (const ref of repository.refs.nodes) {
+      if (ref.branchProtectionRule) {
+        branchNames.push(ref.name)
+      }
+    }
+
+    if (!repository.refs.pageInfo.hasNextPage) {
+      break
+    }
+    cursor = repository.refs.pageInfo.endCursor
+  }
+
+  return branchNames
 }
 
 async function createPr(context, from, to, title) {
