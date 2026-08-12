@@ -28,12 +28,24 @@ module.exports = (app) => {
 /***/ ((module) => {
 
 async function fetchProtectedBranchNames(context) {
-  // Prefer GraphQL over REST GET /branches?protected=true. On large repos the REST
-  // filter evaluates protection across every branch and can 504 (~10s gateway limit).
-  // Do not query branchProtectionRule: it requires Administration and the Distributed
-  // Git Flow app only has Contents / Metadata / Pull Requests. Use Ref.rules (active
-  // repo/org rulesets) and refUpdateRule (classic protection visible without admin).
-  // POST /graphql via request so partial field errors do not abort the whole page.
+  // Avoid REST GET /branches?protected=true: on large repos GitHub evaluates protection
+  // across every branch and can 504. Instead:
+  // 1) GraphQL lists staging/* ref names (no Administration-gated fields)
+  // 2) REST GET /branches/{branch} checks `protected` for classic rules and rulesets
+  const stagingBranchNames = await listStagingBranchNames(context)
+  const protectedBranchNames = []
+
+  for (const branchName of stagingBranchNames) {
+    const branch = await context.octokit.repos.getBranch(context.repo({ branch: branchName }))
+    if (branch.data.protected) {
+      protectedBranchNames.push(branchName)
+    }
+  }
+
+  return protectedBranchNames
+}
+
+async function listStagingBranchNames(context) {
   const { owner, repo } = context.repo()
   const branchNames = []
   let cursor = null
@@ -46,12 +58,6 @@ async function fetchProtectedBranchNames(context) {
         }
         nodes {
           name
-          refUpdateRule {
-            pattern
-          }
-          rules(first: 1) {
-            totalCount
-          }
         }
       }
     }
@@ -71,11 +77,7 @@ async function fetchProtectedBranchNames(context) {
     }
 
     for (const ref of repository.refs.nodes) {
-      if (!ref) {
-        continue
-      }
-      const hasRulesetProtection = ref.rules && ref.rules.totalCount > 0
-      if (ref.refUpdateRule || hasRulesetProtection) {
+      if (ref && ref.name && ref.name.startsWith("staging/")) {
         branchNames.push(ref.name)
       }
     }
