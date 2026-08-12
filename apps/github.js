@@ -1,38 +1,52 @@
 async function fetchProtectedBranchNames(context) {
   // Prefer GraphQL over REST GET /branches?protected=true. On large repos the REST
   // filter evaluates protection across every branch and can 504 (~10s gateway limit).
-  // Query staging/* refs and treat as protected if classic branchProtectionRule or
-  // any active repo/org ruleset rule (Ref.rules) applies.
+  // Do not query branchProtectionRule: it requires Administration and the Distributed
+  // Git Flow app only has Contents / Metadata / Pull Requests. Use Ref.rules (active
+  // repo/org rulesets) and refUpdateRule (classic protection visible without admin).
+  // POST /graphql via request so partial field errors do not abort the whole page.
   const { owner, repo } = context.repo()
   const branchNames = []
   let cursor = null
-
-  while (true) {
-    const { repository } = await context.octokit.graphql(
-      `query($owner: String!, $name: String!, $cursor: String) {
-        repository(owner: $owner, name: $name) {
-          refs(refPrefix: "refs/heads/", query: "staging/", first: 100, after: $cursor) {
-            pageInfo {
-              hasNextPage
-              endCursor
-            }
-            nodes {
-              name
-              branchProtectionRule {
-                id
-              }
-              rules(first: 1) {
-                totalCount
-              }
-            }
+  const query = `query($owner: String!, $name: String!, $cursor: String) {
+    repository(owner: $owner, name: $name) {
+      refs(refPrefix: "refs/heads/", query: "staging/", first: 100, after: $cursor) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          name
+          refUpdateRule {
+            pattern
+          }
+          rules(first: 1) {
+            totalCount
           }
         }
-      }`,
-      { owner, name: repo, cursor }
-    )
+      }
+    }
+  }`
+
+  while (true) {
+    const response = await context.octokit.request("POST /graphql", {
+      query,
+      variables: { owner, name: repo, cursor }
+    })
+    const repository = response.data && response.data.data && response.data.data.repository
+    if (!repository || !repository.refs) {
+      const messages = ((response.data && response.data.errors) || [])
+        .map((error) => error.message)
+        .join("; ")
+      throw new Error(`Failed to list staging refs via GraphQL: ${messages || "unknown error"}`)
+    }
 
     for (const ref of repository.refs.nodes) {
-      if (ref.branchProtectionRule || ref.rules.totalCount > 0) {
+      if (!ref) {
+        continue
+      }
+      const hasRulesetProtection = ref.rules && ref.rules.totalCount > 0
+      if (ref.refUpdateRule || hasRulesetProtection) {
         branchNames.push(ref.name)
       }
     }
