@@ -30,7 +30,8 @@ module.exports = (app) => {
 async function fetchProtectedBranchNames(context) {
   // Prefer GraphQL over REST GET /branches?protected=true. On large repos the REST
   // filter evaluates protection across every branch and can 504 (~10s gateway limit).
-  // Querying staging/* refs and reading branchProtectionRule avoids that scan.
+  // Query staging/* refs and treat as protected if classic branchProtectionRule or
+  // any active repo/org ruleset rule (Ref.rules) applies.
   const { owner, repo } = context.repo()
   const branchNames = []
   let cursor = null
@@ -49,6 +50,9 @@ async function fetchProtectedBranchNames(context) {
               branchProtectionRule {
                 id
               }
+              rules(first: 1) {
+                totalCount
+              }
             }
           }
         }
@@ -57,7 +61,7 @@ async function fetchProtectedBranchNames(context) {
     )
 
     for (const ref of repository.refs.nodes) {
-      if (ref.branchProtectionRule) {
+      if (ref.branchProtectionRule || ref.rules.totalCount > 0) {
         branchNames.push(ref.name)
       }
     }
